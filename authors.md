@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/myominnoo/wpgdata/blob/v0.2.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/myominnoo/wpgdata/blob/main/DESCRIPTION)
 
 Oo M (2026). *wpgdata: Access the Winnipeg Open Data Portal via OData
 V4*. R package version 0.2.0, <https://myominnoo.github.io/wpgdata>.
