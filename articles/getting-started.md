@@ -487,5 +487,5 @@ Portal](https://data.winnipeg.ca) has a unique ID. To find it:
 ## Further reading
 
 - [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
-- [Socrata OData Documentation](https://dev.socrata.com/docs/odata.html)
+- [Socrata OData Documentation](https://dev.socrata.com)
 - [OData V4 Query Options](https://www.odata.org/documentation/)
