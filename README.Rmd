@@ -1,0 +1,130 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  fig.path  = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# wpgdata <img src="man/figures/logo.png" align="right" height="139" alt="" />
+
+<!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/myominnoo/wpgdata/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/myominnoo/wpgdata/actions/workflows/R-CMD-check.yaml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<!-- badges: end -->
+
+`wpgdata` provides a simple R interface to query and download datasets
+from the [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
+using the OData V4 API.
+
+## Installation
+
+Install the development version from GitHub:
+```{r install, eval = FALSE}
+# install.packages("pak")
+pak::pak("myominnoo/wpgdata")
+```
+
+## Quick Start
+```{r library, message = FALSE}
+library(wpgdata)
+```
+
+### `peg_info()` — dataset-level information
+
+Get high-level information about a dataset before downloading it:
+```{r peg_info}
+peg_info("d4mq-wa44")
+```
+
+### `peg_metadata()` — column names and types
+
+Look up field names and types before querying:
+```{r peg_metadata}
+peg_metadata("d4mq-wa44")
+```
+
+### `peg_get()` — fetch the first page
+
+Fetch the first page of a dataset (up to 1000 rows):
+```{r peg_get, message = FALSE}
+peg_get("d4mq-wa44")
+```
+
+### `peg_query()` — filter, select, sort
+
+Query a dataset using R expressions or raw OData strings:
+```{r peg_query_filter}
+# R expression filter
+peg_query("d4mq-wa44",
+  filter = total_assessed_value > 1000000,
+  top    = 5
+)
+```
+```{r peg_query_select}
+# select specific columns
+peg_query("d4mq-wa44",
+  select = c("roll_number", "full_address", "total_assessed_value"),
+  top    = 5
+)
+```
+```{r peg_query_orderby}
+# sort results
+peg_query("d4mq-wa44",
+  select  = c("roll_number", "full_address", "total_assessed_value"),
+  orderby = "total_assessed_value desc",
+  top     = 5
+)
+```
+```{r peg_query_combined}
+# combine filter + select + orderby
+peg_query("d4mq-wa44",
+  filter  = total_assessed_value > 1000000,
+  select  = c("roll_number", "full_address", "total_assessed_value"),
+  orderby = "total_assessed_value desc",
+  top     = 5
+)
+```
+
+### `peg_all()` — fetch all rows with pagination
+
+Retrieve all rows across multiple pages:
+```{r peg_all, message = FALSE}
+# fetch up to 3 pages (safety cap)
+peg_all("d4mq-wa44", max_pages = 3)
+```
+
+## OData Query Reference
+
+| R expression | OData equivalent | Meaning |
+|---|---|---|
+| `x == 1` | `x eq 1` | equal |
+| `x != 1` | `x ne 1` | not equal |
+| `x > 1` | `x gt 1` | greater than |
+| `x >= 1` | `x ge 1` | greater than or equal |
+| `x < 1` | `x lt 1` | less than |
+| `x <= 1` | `x le 1` | less than or equal |
+| `x == 1 & y == 2` | `(x eq 1 and y eq 2)` | AND |
+| `x == 1 \| y == 2` | `(x eq 1 or y eq 2)` | OR |
+
+## Finding Dataset IDs
+
+Dataset IDs are available on the
+[City of Winnipeg Open Data Portal](https://data.winnipeg.ca).
+Each dataset URL contains the ID, for example:
+```
+https://data.winnipeg.ca/api/odata/v4/d4mq-wa44
+                                      ^^^^^^^^^^
+                                      dataset ID
+```
+
+## License
+
+MIT © [Myo Minn Oo](https://github.com/myominnoo)

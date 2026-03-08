@@ -1,0 +1,237 @@
+---
+title: "Getting Started with wpgdata"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with wpgdata}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE
+)
+```
+
+## Introduction
+
+`wpgdata` provides a simple R interface to query and download datasets
+from the [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
+using the OData V4 API. This vignette walks through the core functions
+using the Assessment Parcels dataset (`d4mq-wa44`) as a working example.
+```{r library}
+library(wpgdata)
+library(dplyr)
+```
+
+---
+
+## Workflow overview
+
+The typical `wpgdata` workflow follows four steps:
+```
+peg_info()      →   peg_metadata()   →   peg_query()   →   peg_all()
+(explore)           (find fields)        (filter)          (download all)
+```
+
+---
+
+## Step 1 — Explore a dataset with `peg_info()`
+
+Before downloading data, use `peg_info()` to understand what a dataset
+contains — its name, description, category, update frequency, and
+row count:
+```{r peg_info}
+peg_info("d4mq-wa44")
+```
+
+This tells us the dataset was last updated, how many times it has been
+downloaded, and what licence it is published under — all useful before
+committing to a large download.
+
+---
+
+## Step 2 — Find field names with `peg_metadata()`
+
+OData queries require exact field names. Use `peg_metadata()` to look
+up the available fields and their types before writing any query:
+```{r peg_metadata}
+meta <- peg_metadata("d4mq-wa44")
+meta
+```
+
+The `field_name` column contains the names to use in `peg_query()`.
+The `type` column tells you whether a field is text, number, or
+another type — important for writing correct filter expressions.
+
+For example, to find numeric fields only:
+```{r meta_numeric}
+meta |>
+  dplyr::filter(type == "number")
+```
+
+---
+
+## Step 3 — Fetch a quick preview with `peg_get()`
+
+`peg_get()` fetches the first page of a dataset (up to the server's
+default page size). It is useful for a quick look at the data
+structure before writing more targeted queries:
+```{r peg_get}
+df <- suppressWarnings(peg_get("d4mq-wa44"))
+df
+```
+
+Check column names and types:
+```{r peg_get_glimpse}
+dplyr::glimpse(df)
+```
+
+---
+
+## Step 4 — Query with `peg_query()`
+
+`peg_query()` supports five OData parameters:
+
+| Argument | OData parameter | Purpose |
+|---|---|---|
+| `filter` | `$filter` | filter rows |
+| `select` | `$select` | choose columns |
+| `top` | `$top` | limit rows returned |
+| `skip` | `$skip` | skip rows (offset) |
+| `orderby` | `$orderby` | sort results |
+
+### Filtering rows
+
+Pass R expressions directly — `wpgdata` translates them to OData:
+```{r filter_r}
+peg_query("d4mq-wa44",
+  filter = total_assessed_value > 1000000,
+  top    = 10
+)
+```
+
+Or use raw OData strings if you prefer:
+```{r filter_odata}
+peg_query("d4mq-wa44",
+  filter = "total_assessed_value gt 1000000",
+  top    = 10
+)
+```
+
+Both approaches return identical results.
+
+### Compound filters
+
+Combine conditions with `&` (AND) and `|` (OR):
+```{r filter_compound}
+peg_query("d4mq-wa44",
+  filter = total_assessed_value > 1000000 & building_type == "TWO STOREY",
+  top    = 10
+)
+```
+
+### Selecting columns
+
+Use `select` to return only the columns you need:
+```{r select}
+peg_query("d4mq-wa44",
+  select = c("roll_number", "full_address", "total_assessed_value",
+             "building_type", "year_built"),
+  top    = 10
+)
+```
+
+### Sorting results
+
+Use `orderby` to sort ascending or descending:
+```{r orderby}
+peg_query("d4mq-wa44",
+  select  = c("roll_number", "full_address", "total_assessed_value"),
+  orderby = "total_assessed_value desc",
+  top     = 10
+)
+```
+
+### Combining everything
+```{r combined}
+peg_query("d4mq-wa44",
+  filter  = total_assessed_value > 1000000 & year_built > 2000,
+  select  = c("roll_number", "full_address", "total_assessed_value",
+              "building_type", "year_built"),
+  orderby = "total_assessed_value desc",
+  top     = 10
+)
+```
+
+### Pagination with `skip`
+
+Use `skip` and `top` together to paginate manually:
+```{r skip}
+# rows 1-5
+page_1 <- peg_query("d4mq-wa44", top = 5, skip = 0)
+
+# rows 6-10
+page_2 <- peg_query("d4mq-wa44", top = 5, skip = 5)
+```
+
+---
+
+## Step 5 — Download all rows with `peg_all()`
+
+`peg_all()` automatically paginates through all pages and returns a
+single tibble. It shows a progress bar with row counts and percentage:
+```{r peg_all_cap}
+# fetch up to 3 pages (safety cap)
+peg_all("d4mq-wa44", max_pages = 3)
+```
+
+For large datasets, the default `max_pages = 10` prevents accidental
+downloads. Set `max_pages = Inf` to fetch everything:
+```{r peg_all_inf, eval = FALSE}
+# fetch all rows - may take several minutes for large datasets
+peg_all("d4mq-wa44", max_pages = Inf)
+```
+
+---
+
+## OData filter reference
+
+| R expression | OData equivalent | Meaning |
+|---|---|---|
+| `x == 1` | `x eq 1` | equal |
+| `x != 1` | `x ne 1` | not equal |
+| `x > 1` | `x gt 1` | greater than |
+| `x >= 1` | `x ge 1` | greater than or equal |
+| `x < 1` | `x lt 1` | less than |
+| `x <= 1` | `x le 1` | less than or equal |
+| `x == 1 & y == 2` | `(x eq 1 and y eq 2)` | AND |
+| `x == 1 \| y == 2` | `(x eq 1 or y eq 2)` | OR |
+| `!x` | `not x` | NOT |
+
+---
+
+## Finding dataset IDs
+
+Every dataset on the [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
+has a unique ID. To find it:
+
+1. Browse to [data.winnipeg.ca](https://data.winnipeg.ca)
+2. Open any dataset
+3. Click **API** → **OData V4**
+4. Copy the last segment of the URL:
+```
+https://data.winnipeg.ca/api/odata/v4/d4mq-wa44
+                                      ^^^^^^^^^^
+                                      dataset ID
+```
+
+---
+
+## Further reading
+
+- [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
+- [Socrata OData Documentation](https://dev.socrata.com/docs/odata.html)
+- [OData V4 Query Options](https://www.odata.org/documentation/)
