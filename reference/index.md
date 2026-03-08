@@ -4,6 +4,8 @@
 
 Main functions for accessing Winnipeg Open Data
 
+- [`peg_catalogue()`](https://myominnoo.github.io/wpgdata/reference/peg_catalogue.md)
+  : List all datasets from the Winnipeg Open Data Portal
 - [`peg_get()`](https://myominnoo.github.io/wpgdata/reference/peg_get.md)
   : Get a dataset from the Winnipeg Open Data Portal
 - [`peg_query()`](https://myominnoo.github.io/wpgdata/reference/peg_query.md)
