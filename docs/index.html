@@ -67,27 +67,85 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>Install the development version from GitHub:</p>
+<p>Install from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"wpgdata"</span><span class="op">)</span></span></code></pre></div>
+<p>Or install the development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"myominnoo/wpgdata"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://myominnoo.github.io/wpgdata">wpgdata</a></span><span class="op">)</span></span></code></pre></div>
+<p>The typical workflow follows these steps:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">peg_catalogue</span>()   →   <span class="fu">peg_info</span>()   →   <span class="fu">peg_metadata</span>()   →   <span class="fu">peg_query</span>()   →   <span class="fu">peg_all</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>(find datasets)       (explore)        (find fields)        (filter)          (download all)</span></code></pre></div>
+<div class="section level3">
+<h3 id="peg_catalogue--find-available-datasets">
+<code>peg_catalogue()</code> — find available datasets<a class="anchor" aria-label="anchor" href="#peg_catalogue--find-available-datasets"></a>
+</h3>
+<p>List all datasets on the Winnipeg Open Data Portal with their IDs, categories, and last updated dates:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 200 × 7</span></span>
+<span><span class="co">#&gt;    name           id    description category updated_at          row_count url  </span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    &lt;dttm&gt;                  &lt;int&gt; &lt;chr&gt;</span></span>
+<span><span class="co">#&gt;  1 Plow Zone Sch… tix9… "Scheduled… City Pl… 2026-03-08 16:50:52       630 http…</span></span>
+<span><span class="co">#&gt;  2 311 Call Wait… vrzk… "Caller wa… Contact… 2026-03-08 16:50:32       701 http…</span></span>
+<span><span class="co">#&gt;  3 WFPS Call Logs yg42… "The data … Fire an… 2026-03-08 16:46:07      1349 http…</span></span>
+<span><span class="co">#&gt;  4 Council Votin… f9mn… "On Septem… Council… 2026-03-08 16:14:49       347 http…</span></span>
+<span><span class="co">#&gt;  5 River Water L… tgrf… "Record of… Water a… 2026-03-08 16:01:44       731 http…</span></span>
+<span><span class="co">#&gt;  6 Accessibility… fxq5… "This data… Streets  2026-03-08 16:00:58        67 http…</span></span>
+<span><span class="co">#&gt;  7 FIPPA Request… pfbi… "The Freed… Organiz… 2026-03-08 11:41:58       484 http…</span></span>
+<span><span class="co">#&gt;  8 WPA Paystation b85e… "Onstreet … Parking  2026-03-08 10:03:40       385 http…</span></span>
+<span><span class="co">#&gt;  9 Walkways       jdeq… "This data… City Pl… 2026-03-08 10:03:29       326 http…</span></span>
+<span><span class="co">#&gt; 10 Daily Adult M… du7c… "The data … Insect … 2026-03-08 10:00:15      1445 http…</span></span>
+<span><span class="co">#&gt; # ℹ 190 more rows</span></span></code></pre></div>
+<p>Filter by category or search by name to find a dataset ID:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># count datasets by category</span></span>
+<span><span class="fu"><a href="reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">category</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 26 × 2</span></span>
+<span><span class="co">#&gt;    category                                                   n</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;                                                  &lt;int&gt;</span></span>
+<span><span class="co">#&gt;  1 Census                                                    29</span></span>
+<span><span class="co">#&gt;  2 City Planning                                             25</span></span>
+<span><span class="co">#&gt;  3 Development Approvals, Building Permits, &amp; Inspections    23</span></span>
+<span><span class="co">#&gt;  4 Transportation Planning &amp; Traffic Management              18</span></span>
+<span><span class="co">#&gt;  5 Uncategorized                                             14</span></span>
+<span><span class="co">#&gt;  6 Council Services                                          13</span></span>
+<span><span class="co">#&gt;  7 Organizational Support Services                            8</span></span>
+<span><span class="co">#&gt;  8 Assessment, Taxation, &amp; Corporate                          7</span></span>
+<span><span class="co">#&gt;  9 Contact Centre - 311                                       7</span></span>
+<span><span class="co">#&gt; 10 Water and Waste                                            7</span></span>
+<span><span class="co">#&gt; # ℹ 16 more rows</span></span>
+<span></span>
+<span><span class="co"># search by name</span></span>
+<span><span class="fu"><a href="reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"assessment"</span>, <span class="va">name</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">updated_at</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span><span class="co">#&gt;   name               id        updated_at         </span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;              &lt;chr&gt;     &lt;dttm&gt;             </span></span>
+<span><span class="co">#&gt; 1 Assessment Parcels d4mq-wa44 2026-03-08 09:32:08</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="peg_info--dataset-level-information">
 <code>peg_info()</code> — dataset-level information<a class="anchor" aria-label="anchor" href="#peg_info--dataset-level-information"></a>
 </h3>
 <p>Get high-level information about a dataset before downloading it:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/peg_info.html">peg_info</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 11</span></span>
 <span><span class="co">#&gt;   name        description category created_at rows_updated_at view_last_modified</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;    &lt;date&gt;     &lt;date&gt;          &lt;date&gt;            </span></span>
-<span><span class="co">#&gt; 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-07      2026-03-07        </span></span>
+<span><span class="co">#&gt; 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-08      2026-03-08        </span></span>
 <span><span class="co">#&gt; # ℹ 5 more variables: view_count &lt;int&gt;, download_count &lt;int&gt;, tags &lt;list&gt;,</span></span>
 <span><span class="co">#&gt; #   license &lt;chr&gt;, provenance &lt;chr&gt;</span></span></code></pre></div>
 </div>
@@ -95,8 +153,8 @@
 <h3 id="peg_metadata--column-names-and-types">
 <code>peg_metadata()</code> — column names and types<a class="anchor" aria-label="anchor" href="#peg_metadata--column-names-and-types"></a>
 </h3>
-<p>Look up field names and types before querying:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>Look up field names and types before querying. Always use <code>field_name</code> values in <code><a href="reference/peg_query.html">peg_query()</a></code>:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/peg_metadata.html">peg_metadata</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 71 × 4</span></span>
 <span><span class="co">#&gt;    name               field_name         type   description</span></span>
@@ -117,25 +175,22 @@
 <h3 id="peg_get--fetch-the-first-page">
 <code>peg_get()</code> — fetch the first page<a class="anchor" aria-label="anchor" href="#peg_get--fetch-the-first-page"></a>
 </h3>
-<p>Fetch the first page of a dataset (up to 1000 rows):</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/peg_get.html">peg_get</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: ! Not all rows returned. The dataset is paginated.</span></span>
-<span><span class="co">#&gt; ℹ Rows retrieved: 1000</span></span>
-<span><span class="co">#&gt; ℹ Use `peg_all()` to retrieve all rows.</span></span>
+<p>Fetch the first page of a dataset. Warns if more rows are available:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="reference/peg_get.html">peg_get</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1,000 × 72</span></span>
 <span><span class="co">#&gt;    `__id`   roll_number street_number unit_number street_suffix street_direction</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;       &lt;lgl&gt;         &lt;lgl&gt;           </span></span>
-<span><span class="co">#&gt;  1 row-yah… 01000001000          1636 &lt;NA&gt;        NA            NA              </span></span>
-<span><span class="co">#&gt;  2 row-tuj… 01000005500          1584 &lt;NA&gt;        NA            NA              </span></span>
-<span><span class="co">#&gt;  3 row-7y8… 01000008000          1574 &lt;NA&gt;        NA            NA              </span></span>
-<span><span class="co">#&gt;  4 row-vzs… 01000008200          1550 &lt;NA&gt;        NA            NA              </span></span>
-<span><span class="co">#&gt;  5 row-pq8… 01000008400          1538 &lt;NA&gt;        NA            NA              </span></span>
-<span><span class="co">#&gt;  6 row-6dw… 01000008500          1536 &lt;NA&gt;        NA            NA              </span></span>
-<span><span class="co">#&gt;  7 row-ayw… 01000013200          1520 &lt;NA&gt;        NA            NA              </span></span>
-<span><span class="co">#&gt;  8 row-ji6… 01000013300          1510 &lt;NA&gt;        NA            NA              </span></span>
-<span><span class="co">#&gt;  9 row-y6a… 01000013600          1500 &lt;NA&gt;        NA            NA              </span></span>
-<span><span class="co">#&gt; 10 row-82n… 01000013700          1490 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt;  1 row-iai… 01000001000          1636 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt;  2 row-u7e… 01000005500          1584 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt;  3 row-rxq… 01000008000          1574 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt;  4 row-7nj… 01000008200          1550 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt;  5 row-pte… 01000008400          1538 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt;  6 row-ehq… 01000008500          1536 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt;  7 row-iyr… 01000013200          1520 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt;  8 row-78v… 01000013300          1510 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt;  9 row-cv3… 01000013600          1500 &lt;NA&gt;        NA            NA              </span></span>
+<span><span class="co">#&gt; 10 row-trz… 01000013700          1490 &lt;NA&gt;        NA            NA              </span></span>
 <span><span class="co">#&gt; # ℹ 990 more rows</span></span>
 <span><span class="co">#&gt; # ℹ 66 more variables: street_name &lt;chr&gt;, street_type &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   full_address &lt;chr&gt;, neighbourhood_area &lt;chr&gt;, market_region &lt;chr&gt;,</span></span>
@@ -149,7 +204,7 @@
 <code>peg_query()</code> — filter, select, sort<a class="anchor" aria-label="anchor" href="#peg_query--filter-select-sort"></a>
 </h3>
 <p>Query a dataset using R expressions or raw OData strings:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># R expression filter</span></span>
 <span><span class="fu"><a href="reference/peg_query.html">peg_query</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  filter <span class="op">=</span> <span class="va">total_assessed_value</span> <span class="op">&gt;</span> <span class="fl">1000000</span>,</span>
@@ -161,11 +216,11 @@
 <span><span class="co">#&gt; # A tibble: 5 × 72</span></span>
 <span><span class="co">#&gt;   `__id`    roll_number street_number unit_number street_suffix street_direction</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;               &lt;int&gt; &lt;lgl&gt;       &lt;lgl&gt;         &lt;lgl&gt;           </span></span>
-<span><span class="co">#&gt; 1 row-tuj9… 01000005500          1584 NA          NA            NA              </span></span>
-<span><span class="co">#&gt; 2 row-aywk… 01000013200          1520 NA          NA            NA              </span></span>
-<span><span class="co">#&gt; 3 row-xu56… 01000014500          1450 NA          NA            NA              </span></span>
-<span><span class="co">#&gt; 4 row-dewr… 01000045500          1290 NA          NA            NA              </span></span>
-<span><span class="co">#&gt; 5 row-xx9b… 01000064000          1820 NA          NA            NA              </span></span>
+<span><span class="co">#&gt; 1 row-u7eu… 01000005500          1584 NA          NA            NA              </span></span>
+<span><span class="co">#&gt; 2 row-iyrb… 01000013200          1520 NA          NA            NA              </span></span>
+<span><span class="co">#&gt; 3 row-ygb8… 01000014500          1450 NA          NA            NA              </span></span>
+<span><span class="co">#&gt; 4 row-bp9n… 01000045500          1290 NA          NA            NA              </span></span>
+<span><span class="co">#&gt; 5 row-nskr… 01000064000          1820 NA          NA            NA              </span></span>
 <span><span class="co">#&gt; # ℹ 66 more variables: street_name &lt;chr&gt;, street_type &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   full_address &lt;chr&gt;, neighbourhood_area &lt;chr&gt;, market_region &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   total_living_area &lt;int&gt;, building_type &lt;chr&gt;, basement &lt;chr&gt;,</span></span>
@@ -173,7 +228,7 @@
 <span><span class="co">#&gt; #   air_conditioning &lt;chr&gt;, fire_place &lt;chr&gt;, attached_garage &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   detached_garage &lt;chr&gt;, pool &lt;chr&gt;, number_floors_condo &lt;lgl&gt;,</span></span>
 <span><span class="co">#&gt; #   property_use_code &lt;chr&gt;, assessed_land_area &lt;int&gt;, …</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># select specific columns</span></span>
 <span><span class="fu"><a href="reference/peg_query.html">peg_query</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"roll_number"</span>, <span class="st">"full_address"</span>, <span class="st">"total_assessed_value"</span><span class="op">)</span>,</span>
@@ -190,7 +245,7 @@
 <span><span class="co">#&gt; 3 01000008000 1574 MCCREARY ROAD               570000</span></span>
 <span><span class="co">#&gt; 4 01000008200 1550 MCCREARY ROAD               743000</span></span>
 <span><span class="co">#&gt; 5 01000008400 1538 MCCREARY ROAD               577000</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># sort results</span></span>
 <span><span class="fu"><a href="reference/peg_query.html">peg_query</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  select  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"roll_number"</span>, <span class="st">"full_address"</span>, <span class="st">"total_assessed_value"</span><span class="op">)</span>,</span>
@@ -208,7 +263,7 @@
 <span><span class="co">#&gt; 3 08020955700 1225 ST MARY'S ROAD            328848000</span></span>
 <span><span class="co">#&gt; 4 13096152000 700 WILLIAM AVENUE             262782000</span></span>
 <span><span class="co">#&gt; 5 12092819100 10 KENNEDY STREET              262044000</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># combine filter + select + orderby</span></span>
 <span><span class="fu"><a href="reference/peg_query.html">peg_query</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  filter  <span class="op">=</span> <span class="va">total_assessed_value</span> <span class="op">&gt;</span> <span class="fl">1000000</span>,</span>
@@ -232,26 +287,25 @@
 <h3 id="peg_all--fetch-all-rows-with-pagination">
 <code>peg_all()</code> — fetch all rows with pagination<a class="anchor" aria-label="anchor" href="#peg_all--fetch-all-rows-with-pagination"></a>
 </h3>
-<p>Retrieve all rows across multiple pages:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># fetch up to 3 pages (safety cap)</span></span>
-<span><span class="fu"><a href="reference/peg_all.html">peg_all</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>, max_pages <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<p>Retrieve all rows across multiple pages with a progress bar:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/peg_all.html">peg_all</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>, max_pages <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: ! Stopped after 3 pages.</span></span>
 <span><span class="co">#&gt; ℹ Rows retrieved : 41000 of 245130</span></span>
 <span><span class="co">#&gt; ℹ Use `max_pages = Inf` to fetch all.</span></span>
 <span><span class="co">#&gt; # A tibble: 41,000 × 72</span></span>
 <span><span class="co">#&gt;    `__id`   roll_number street_number unit_number street_suffix street_direction</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;    &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;           </span></span>
-<span><span class="co">#&gt;  1 row-yah… 01000001000          1636 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
-<span><span class="co">#&gt;  2 row-tuj… 01000005500          1584 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
-<span><span class="co">#&gt;  3 row-7y8… 01000008000          1574 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
-<span><span class="co">#&gt;  4 row-vzs… 01000008200          1550 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
-<span><span class="co">#&gt;  5 row-pq8… 01000008400          1538 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
-<span><span class="co">#&gt;  6 row-6dw… 01000008500          1536 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
-<span><span class="co">#&gt;  7 row-ayw… 01000013200          1520 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
-<span><span class="co">#&gt;  8 row-ji6… 01000013300          1510 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
-<span><span class="co">#&gt;  9 row-y6a… 01000013600          1500 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
-<span><span class="co">#&gt; 10 row-82n… 01000013700          1490 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt;  1 row-iai… 01000001000          1636 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt;  2 row-u7e… 01000005500          1584 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt;  3 row-rxq… 01000008000          1574 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt;  4 row-7nj… 01000008200          1550 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt;  5 row-pte… 01000008400          1538 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt;  6 row-ehq… 01000008500          1536 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt;  7 row-iyr… 01000013200          1520 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt;  8 row-78v… 01000013300          1510 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt;  9 row-cv3… 01000013600          1500 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
+<span><span class="co">#&gt; 10 row-trz… 01000013700          1490 &lt;NA&gt;        &lt;NA&gt;          &lt;NA&gt;            </span></span>
 <span><span class="co">#&gt; # ℹ 40,990 more rows</span></span>
 <span><span class="co">#&gt; # ℹ 66 more variables: street_name &lt;chr&gt;, street_type &lt;chr&gt;,</span></span>
 <span><span class="co">#&gt; #   full_address &lt;chr&gt;, neighbourhood_area &lt;chr&gt;, market_region &lt;chr&gt;,</span></span>
@@ -311,16 +365,26 @@
 <td><code>(x eq 1 or y eq 2)</code></td>
 <td>OR</td>
 </tr>
+<tr>
+<td><code>!x</code></td>
+<td><code>not x</code></td>
+<td>NOT</td>
+</tr>
 </tbody>
 </table>
 </div>
 <div class="section level2">
 <h2 id="finding-dataset-ids">Finding Dataset IDs<a class="anchor" aria-label="anchor" href="#finding-dataset-ids"></a>
 </h2>
-<p>Dataset IDs are available on the <a href="https://data.winnipeg.ca" class="external-link">City of Winnipeg Open Data Portal</a>. Each dataset URL contains the ID, for example:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>https<span class="sc">:</span><span class="er">//</span>data.winnipeg.ca<span class="sc">/</span>api<span class="sc">/</span>odata<span class="sc">/</span>v4<span class="sc">/</span>d4mq<span class="sc">-</span>wa44</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>                                      <span class="sc">^</span><span class="er">^^^^^^^^^</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>                                      dataset ID</span></code></pre></div>
+<p>The easiest way is directly in R:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"your search term"</span>, <span class="va">name</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">category</span><span class="op">)</span></span></code></pre></div>
+<p>Alternatively, browse the <a href="https://data.winnipeg.ca" class="external-link">City of Winnipeg Open Data Portal</a> and copy the ID from the OData V4 endpoint URL:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>https<span class="sc">:</span><span class="er">//</span>data.winnipeg.ca<span class="sc">/</span>api<span class="sc">/</span>odata<span class="sc">/</span>v4<span class="sc">/</span>d4mq<span class="sc">-</span>wa44</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>                                      <span class="sc">^</span><span class="er">^^^^^^^^^</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>                                      dataset ID</span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
@@ -362,6 +426,7 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
+<li><a href="https://CRAN.R-project.org/package=wpgdata" class="external-link"><img src="https://www.r-pkg.org/badges/version/wpgdata" alt="CRAN status"></a></li>
 <li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 <li><a href="https://github.com/myominnoo/wpgdata/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/myominnoo/wpgdata/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://opensource.org/licenses/MIT" class="external-link"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a></li>
