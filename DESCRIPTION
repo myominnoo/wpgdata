@@ -1,6 +1,6 @@
 Package: wpgdata
 Title: Access the Winnipeg Open Data Portal via OData V4
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: 
     person("Myo Minn", "Oo", , "dr.myominnoo@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-4089-016X"))
@@ -31,7 +31,7 @@ Suggests:
     testthat (>= 3.0.0),
     xml2,
     spelling
-URL: https://github.com/myominnoo/wpgdata
+URL: https://myominnoo.github.io/wpgdata, https://github.com/myominnoo/wpgdata
 BugReports: https://github.com/myominnoo/wpgdata/issues
 Config/testthat/edition: 3
 VignetteBuilder: knitr

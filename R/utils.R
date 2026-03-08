@@ -239,6 +239,107 @@ parse_info <- function(response) {
 
 
 #' @noRd
+parse_catalogue <- function(response) {
+  if (httr2::resp_body_raw(response) |> length() == 0) {
+    cli::cli_abort("Response body is empty. The server returned no content.")
+  }
+
+  parsed <- tryCatch(
+    httr2::resp_body_json(response),
+    error = \(e) {
+      cli::cli_abort("Failed to parse catalogue response: {e$message}")
+    }
+  )
+
+  if (is.null(parsed) || !is.list(parsed)) {
+    cli::cli_abort("Unexpected response structure from the catalogue API.")
+  }
+
+  results <- purrr::pluck(parsed, "results")
+
+  if (is.null(results) || length(results) == 0) {
+    cli::cli_warn("No datasets found in the Winnipeg Open Data catalogue.")
+    return(tibble::tibble())
+  }
+
+  results |>
+    purrr::map(\(x) {
+      tibble::tibble(
+        name = x$resource$name %||% NA_character_,
+        id = x$resource$id %||% NA_character_,
+        description = x$resource$description %||% NA_character_,
+        category = x$classification$domain_category %||% NA_character_,
+        updated_at = x$resource$updatedAt %||% NA_character_,
+        row_count = x$resource$download_count %||% NA_integer_
+      )
+    }) |>
+    purrr::list_rbind() |>
+    dplyr::mutate(
+      updated_at = as.POSIXct(
+        .data$updated_at,
+        format = "%Y-%m-%dT%H:%M:%S",
+        tz = "UTC"
+      ),
+      url = paste0("https://data.winnipeg.ca/d/", .data$id),
+      category = dplyr::coalesce(.data$category, "Uncategorized")
+    ) |>
+    dplyr::arrange(dplyr::desc(.data$updated_at))
+}
+
+#' @noRd
+get_catalogue_count <- function() {
+  response <- httr2::request("https://api.us.socrata.com/api/catalog/v1") |>
+    httr2::req_url_query(
+      domains = "data.winnipeg.ca",
+      only = "dataset",
+      limit = 1L
+    ) |>
+    httr2::req_error(is_error = \(resp) FALSE) |>
+    httr2::req_perform() |>
+    handle_errors()
+
+  if (httr2::resp_body_raw(response) |> length() == 0) {
+    cli::cli_abort("Response body is empty fetching catalogue count.")
+  }
+
+  count <- httr2::resp_body_json(response) |>
+    purrr::pluck("resultSetSize")
+
+  if (is.null(count)) {
+    cli::cli_abort(
+      "Could not retrieve total dataset count from the catalogue API."
+    )
+  }
+
+  count
+}
+
+#' @noRd
+fetch_catalogue_page <- function(offset, limit) {
+  if (!is.numeric(offset) || offset < 0) {
+    cli::cli_abort("{.arg offset} must be a non-negative integer.")
+  }
+
+  if (!is.numeric(limit) || limit < 1) {
+    cli::cli_abort("{.arg limit} must be a positive integer.")
+  }
+
+  httr2::request("https://api.us.socrata.com/api/catalog/v1") |>
+    httr2::req_url_query(
+      domains = "data.winnipeg.ca",
+      only = "dataset",
+      limit = as.integer(limit),
+      offset = as.integer(offset)
+    ) |>
+    httr2::req_headers("Accept" = "application/json") |>
+    httr2::req_error(is_error = \(resp) FALSE) |>
+    httr2::req_perform() |>
+    handle_errors() |>
+    parse_catalogue()
+}
+
+
+#' @noRd
 get_total_count <- function(dataset_id) {
   url <- build_url(dataset_id, params = list("count" = "true"))
 
@@ -275,3 +376,8 @@ get_total_count <- function(dataset_id) {
 
 #' @noRd
 `%||%` <- rlang::`%||%`
+
+
+# re-export .data pronoun so R CMD check doesn't flag it
+#' @importFrom rlang .data
+NULL

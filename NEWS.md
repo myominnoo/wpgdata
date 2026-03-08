@@ -1,3 +1,18 @@
+# wpgdata 0.2.0
+
+## New functions
+
+* `peg_catalogue()` — list all datasets available on the City of Winnipeg
+  Open Data Portal with name, ID, category, and last updated date.
+
+## Internal changes
+
+* Added `get_catalogue_count()`, `fetch_catalogue_page()`, and 
+  `parse_catalogue()` internal helpers to `utils.R`.
+* Imported `rlang::.data` pronoun to suppress R CMD check notes in 
+  `dplyr::mutate()` calls.
+
+
 # wpgdata 0.1.0
 
 ## Initial release

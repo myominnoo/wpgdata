@@ -16,16 +16,96 @@ library(dplyr)
 
 ## Workflow overview
 
-The typical `wpgdata` workflow follows four steps:
+The typical `wpgdata` workflow follows five steps:
 
-    peg_info()      →   peg_metadata()   →   peg_query()   →   peg_all()
-    (explore)           (find fields)        (filter)          (download all)
+| Function | Purpose |
+|----|----|
+| [`peg_catalogue()`](https://myominnoo.github.io/wpgdata/reference/peg_catalogue.md) | Browse all available datasets and find IDs |
+| [`peg_info()`](https://myominnoo.github.io/wpgdata/reference/peg_info.md) | Explore a specific dataset |
+| [`peg_metadata()`](https://myominnoo.github.io/wpgdata/reference/peg_metadata.md) | Find field names before querying |
+| [`peg_query()`](https://myominnoo.github.io/wpgdata/reference/peg_query.md) | Filter, select, and sort |
+| [`peg_all()`](https://myominnoo.github.io/wpgdata/reference/peg_all.md) | Download all rows |
+
+    peg_catalogue()   →   peg_info()   →   peg_metadata()   →   peg_query()   →   peg_all()
+    (find datasets)       (explore)        (find fields)        (filter)          (download all)
 
 ------------------------------------------------------------------------
 
-## Step 1 — Explore a dataset with `peg_info()`
+## Step 1 — Find datasets with `peg_catalogue()`
 
-Before downloading data, use
+Before working with any dataset, use
+[`peg_catalogue()`](https://myominnoo.github.io/wpgdata/reference/peg_catalogue.md)
+to browse all available datasets on the portal. This is the best
+starting point when you don’t yet know a dataset ID:
+
+``` r
+catalogue <- peg_catalogue()
+catalogue
+#> # A tibble: 200 × 7
+#>    name           id    description category updated_at          row_count url  
+#>    <chr>          <chr> <chr>       <chr>    <dttm>                  <int> <chr>
+#>  1 Plow Zone Sch… tix9… "Scheduled… City Pl… 2026-03-08 15:31:04       630 http…
+#>  2 311 Call Wait… vrzk… "Caller wa… Contact… 2026-03-08 15:30:21       701 http…
+#>  3 WFPS Call Logs yg42… "The data … Fire an… 2026-03-08 15:28:53      1349 http…
+#>  4 Council Votin… f9mn… "On Septem… Council… 2026-03-08 15:15:00       347 http…
+#>  5 River Water L… tgrf… "Record of… Water a… 2026-03-08 15:01:27       731 http…
+#>  6 Accessibility… fxq5… "This data… Streets  2026-03-08 15:00:57        67 http…
+#>  7 FIPPA Request… pfbi… "The Freed… Organiz… 2026-03-08 11:41:58       484 http…
+#>  8 WPA Paystation b85e… "Onstreet … Parking  2026-03-08 10:03:40       385 http…
+#>  9 Walkways       jdeq… "This data… City Pl… 2026-03-08 10:03:29       326 http…
+#> 10 Daily Adult M… du7c… "The data … Insect … 2026-03-08 10:00:15      1445 http…
+#> # ℹ 190 more rows
+```
+
+Count datasets by category to get an overview of what’s available:
+
+``` r
+catalogue |>
+  dplyr::count(category, sort = TRUE)
+#> # A tibble: 26 × 2
+#>    category                                                   n
+#>    <chr>                                                  <int>
+#>  1 Census                                                    29
+#>  2 City Planning                                             25
+#>  3 Development Approvals, Building Permits, & Inspections    23
+#>  4 Transportation Planning & Traffic Management              18
+#>  5 Uncategorized                                             14
+#>  6 Council Services                                          13
+#>  7 Organizational Support Services                            8
+#>  8 Assessment, Taxation, & Corporate                          7
+#>  9 Contact Centre - 311                                       7
+#> 10 Water and Waste                                            7
+#> # ℹ 16 more rows
+```
+
+Search by name to find a specific dataset and retrieve its ID:
+
+``` r
+catalogue |>
+  dplyr::filter(grepl("assessment", name, ignore.case = TRUE)) |>
+  dplyr::select(name, id, updated_at)
+#> # A tibble: 1 × 3
+#>   name               id        updated_at         
+#>   <chr>              <chr>     <dttm>             
+#> 1 Assessment Parcels d4mq-wa44 2026-03-08 09:32:08
+```
+
+Use the `id` value in any other `peg_*` function:
+
+``` r
+dataset_id <- catalogue |>
+  dplyr::filter(name == "Assessment Parcels") |>
+  dplyr::pull(id)
+
+dataset_id
+#> [1] "d4mq-wa44"
+```
+
+------------------------------------------------------------------------
+
+## Step 2 — Explore a dataset with `peg_info()`
+
+Use
 [`peg_info()`](https://myominnoo.github.io/wpgdata/reference/peg_info.md)
 to understand what a dataset contains — its name, description, category,
 update frequency, and row count:
@@ -35,7 +115,7 @@ peg_info("d4mq-wa44")
 #> # A tibble: 1 × 11
 #>   name        description category created_at rows_updated_at view_last_modified
 #>   <chr>       <chr>       <chr>    <date>     <date>          <date>            
-#> 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-07      2026-03-07        
+#> 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-08      2026-03-08        
 #> # ℹ 5 more variables: view_count <int>, download_count <int>, tags <list>,
 #> #   license <chr>, provenance <chr>
 ```
@@ -46,7 +126,7 @@ committing to a large download.
 
 ------------------------------------------------------------------------
 
-## Step 2 — Find field names with `peg_metadata()`
+## Step 3 — Find field names with `peg_metadata()`
 
 OData queries require exact field names. Use
 [`peg_metadata()`](https://myominnoo.github.io/wpgdata/reference/peg_metadata.md)
@@ -100,7 +180,7 @@ meta |>
 
 ------------------------------------------------------------------------
 
-## Step 3 — Fetch a quick preview with `peg_get()`
+## Step 4 — Fetch a quick preview with `peg_get()`
 
 [`peg_get()`](https://myominnoo.github.io/wpgdata/reference/peg_get.md)
 fetches the first page of a dataset (up to the server’s default page
@@ -113,16 +193,16 @@ df
 #> # A tibble: 1,000 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
 #>    <chr>    <chr>               <int> <chr>       <lgl>         <lgl>           
-#>  1 row-yah… 01000001000          1636 NA          NA            NA              
-#>  2 row-tuj… 01000005500          1584 NA          NA            NA              
-#>  3 row-7y8… 01000008000          1574 NA          NA            NA              
-#>  4 row-vzs… 01000008200          1550 NA          NA            NA              
-#>  5 row-pq8… 01000008400          1538 NA          NA            NA              
-#>  6 row-6dw… 01000008500          1536 NA          NA            NA              
-#>  7 row-ayw… 01000013200          1520 NA          NA            NA              
-#>  8 row-ji6… 01000013300          1510 NA          NA            NA              
-#>  9 row-y6a… 01000013600          1500 NA          NA            NA              
-#> 10 row-82n… 01000013700          1490 NA          NA            NA              
+#>  1 row-iai… 01000001000          1636 NA          NA            NA              
+#>  2 row-u7e… 01000005500          1584 NA          NA            NA              
+#>  3 row-rxq… 01000008000          1574 NA          NA            NA              
+#>  4 row-7nj… 01000008200          1550 NA          NA            NA              
+#>  5 row-pte… 01000008400          1538 NA          NA            NA              
+#>  6 row-ehq… 01000008500          1536 NA          NA            NA              
+#>  7 row-iyr… 01000013200          1520 NA          NA            NA              
+#>  8 row-78v… 01000013300          1510 NA          NA            NA              
+#>  9 row-cv3… 01000013600          1500 NA          NA            NA              
+#> 10 row-trz… 01000013700          1490 NA          NA            NA              
 #> # ℹ 990 more rows
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
@@ -138,7 +218,7 @@ Check column names and types:
 dplyr::glimpse(df)
 #> Rows: 1,000
 #> Columns: 72
-#> $ `__id`                          <chr> "row-yahs.z2r6-35k6", "row-tuj9~wwn2-g…
+#> $ `__id`                          <chr> "row-iaim.ytxs-dh5m", "row-u7eu_kbti.y…
 #> $ roll_number                     <chr> "01000001000", "01000005500", "0100000…
 #> $ street_number                   <int> 1636, 1584, 1574, 1550, 1538, 1536, 15…
 #> $ unit_number                     <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA…
@@ -214,7 +294,7 @@ dplyr::glimpse(df)
 
 ------------------------------------------------------------------------
 
-## Step 4 — Query with `peg_query()`
+## Step 5 — Query with `peg_query()`
 
 [`peg_query()`](https://myominnoo.github.io/wpgdata/reference/peg_query.md)
 supports five OData parameters:
@@ -239,16 +319,16 @@ peg_query("d4mq-wa44",
 #> # A tibble: 10 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
 #>    <chr>    <chr>               <int> <lgl>       <lgl>         <lgl>           
-#>  1 row-tuj… 01000005500          1584 NA          NA            NA              
-#>  2 row-ayw… 01000013200          1520 NA          NA            NA              
-#>  3 row-xu5… 01000014500          1450 NA          NA            NA              
-#>  4 row-dew… 01000045500          1290 NA          NA            NA              
-#>  5 row-xx9… 01000064000          1820 NA          NA            NA              
-#>  6 row-qbt… 01000067500          1916 NA          NA            NA              
-#>  7 row-6gx… 01000067900          1892 NA          NA            NA              
-#>  8 row-4q3… 01000092200          1700 NA          NA            NA              
-#>  9 row-kim… 01000096000          1720 NA          NA            NA              
-#> 10 row-ect… 01000306500          2424 NA          NA            NA              
+#>  1 row-u7e… 01000005500          1584 NA          NA            NA              
+#>  2 row-iyr… 01000013200          1520 NA          NA            NA              
+#>  3 row-ygb… 01000014500          1450 NA          NA            NA              
+#>  4 row-bp9… 01000045500          1290 NA          NA            NA              
+#>  5 row-nsk… 01000064000          1820 NA          NA            NA              
+#>  6 row-y94… 01000067500          1916 NA          NA            NA              
+#>  7 row-s2m… 01000067900          1892 NA          NA            NA              
+#>  8 row-fzv… 01000092200          1700 NA          NA            NA              
+#>  9 row-4c9… 01000096000          1720 NA          NA            NA              
+#> 10 row-44b… 01000306500          2424 NA          NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -268,16 +348,16 @@ peg_query("d4mq-wa44",
 #> # A tibble: 10 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
 #>    <chr>    <chr>               <int> <lgl>       <lgl>         <lgl>           
-#>  1 row-tuj… 01000005500          1584 NA          NA            NA              
-#>  2 row-ayw… 01000013200          1520 NA          NA            NA              
-#>  3 row-xu5… 01000014500          1450 NA          NA            NA              
-#>  4 row-dew… 01000045500          1290 NA          NA            NA              
-#>  5 row-xx9… 01000064000          1820 NA          NA            NA              
-#>  6 row-qbt… 01000067500          1916 NA          NA            NA              
-#>  7 row-6gx… 01000067900          1892 NA          NA            NA              
-#>  8 row-4q3… 01000092200          1700 NA          NA            NA              
-#>  9 row-kim… 01000096000          1720 NA          NA            NA              
-#> 10 row-ect… 01000306500          2424 NA          NA            NA              
+#>  1 row-u7e… 01000005500          1584 NA          NA            NA              
+#>  2 row-iyr… 01000013200          1520 NA          NA            NA              
+#>  3 row-ygb… 01000014500          1450 NA          NA            NA              
+#>  4 row-bp9… 01000045500          1290 NA          NA            NA              
+#>  5 row-nsk… 01000064000          1820 NA          NA            NA              
+#>  6 row-y94… 01000067500          1916 NA          NA            NA              
+#>  7 row-s2m… 01000067900          1892 NA          NA            NA              
+#>  8 row-fzv… 01000092200          1700 NA          NA            NA              
+#>  9 row-4c9… 01000096000          1720 NA          NA            NA              
+#> 10 row-44b… 01000306500          2424 NA          NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -301,16 +381,16 @@ peg_query("d4mq-wa44",
 #> # A tibble: 10 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
 #>    <chr>    <chr>               <int> <lgl>       <lgl>         <lgl>           
-#>  1 row-tuj… 01000005500          1584 NA          NA            NA              
-#>  2 row-ayw… 01000013200          1520 NA          NA            NA              
-#>  3 row-xu5… 01000014500          1450 NA          NA            NA              
-#>  4 row-xx9… 01000064000          1820 NA          NA            NA              
-#>  5 row-dqi… 01000560000          3179 NA          NA            NA              
-#>  6 row-u4j… 01000615000             3 NA          NA            NA              
-#>  7 row-zrc… 01000615400            17 NA          NA            NA              
-#>  8 row-7se… 01000615800            31 NA          NA            NA              
-#>  9 row-yyw… 01000617400            36 NA          NA            NA              
-#> 10 row-uv4… 01000718800           400 NA          NA            NA              
+#>  1 row-u7e… 01000005500          1584 NA          NA            NA              
+#>  2 row-iyr… 01000013200          1520 NA          NA            NA              
+#>  3 row-ygb… 01000014500          1450 NA          NA            NA              
+#>  4 row-nsk… 01000064000          1820 NA          NA            NA              
+#>  5 row-3vg… 01000560000          3179 NA          NA            NA              
+#>  6 row-mrq… 01000615000             3 NA          NA            NA              
+#>  7 row-zir… 01000615400            17 NA          NA            NA              
+#>  8 row-uym… 01000615800            31 NA          NA            NA              
+#>  9 row-txp… 01000617400            36 NA          NA            NA              
+#> 10 row-eh9… 01000718800           400 NA          NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -409,7 +489,7 @@ page_2 <- peg_query("d4mq-wa44", top = 5, skip = 5)
 
 ------------------------------------------------------------------------
 
-## Step 5 — Download all rows with `peg_all()`
+## Step 6 — Download all rows with `peg_all()`
 
 [`peg_all()`](https://myominnoo.github.io/wpgdata/reference/peg_all.md)
 automatically paginates through all pages and returns a single tibble.
@@ -421,16 +501,16 @@ peg_all("d4mq-wa44", max_pages = 3)
 #> # A tibble: 41,000 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
 #>    <chr>    <chr>               <int> <chr>       <chr>         <chr>           
-#>  1 row-yah… 01000001000          1636 NA          NA            NA              
-#>  2 row-tuj… 01000005500          1584 NA          NA            NA              
-#>  3 row-7y8… 01000008000          1574 NA          NA            NA              
-#>  4 row-vzs… 01000008200          1550 NA          NA            NA              
-#>  5 row-pq8… 01000008400          1538 NA          NA            NA              
-#>  6 row-6dw… 01000008500          1536 NA          NA            NA              
-#>  7 row-ayw… 01000013200          1520 NA          NA            NA              
-#>  8 row-ji6… 01000013300          1510 NA          NA            NA              
-#>  9 row-y6a… 01000013600          1500 NA          NA            NA              
-#> 10 row-82n… 01000013700          1490 NA          NA            NA              
+#>  1 row-iai… 01000001000          1636 NA          NA            NA              
+#>  2 row-u7e… 01000005500          1584 NA          NA            NA              
+#>  3 row-rxq… 01000008000          1574 NA          NA            NA              
+#>  4 row-7nj… 01000008200          1550 NA          NA            NA              
+#>  5 row-pte… 01000008400          1538 NA          NA            NA              
+#>  6 row-ehq… 01000008500          1536 NA          NA            NA              
+#>  7 row-iyr… 01000013200          1520 NA          NA            NA              
+#>  8 row-78v… 01000013300          1510 NA          NA            NA              
+#>  9 row-cv3… 01000013600          1500 NA          NA            NA              
+#> 10 row-trz… 01000013700          1490 NA          NA            NA              
 #> # ℹ 40,990 more rows
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
@@ -468,8 +548,18 @@ peg_all("d4mq-wa44", max_pages = Inf)
 
 ## Finding dataset IDs
 
-Every dataset on the [City of Winnipeg Open Data
-Portal](https://data.winnipeg.ca) has a unique ID. To find it:
+The easiest way is to use
+[`peg_catalogue()`](https://myominnoo.github.io/wpgdata/reference/peg_catalogue.md)
+directly in R:
+
+``` r
+peg_catalogue() |>
+  dplyr::filter(grepl("your search term", name, ignore.case = TRUE)) |>
+  dplyr::select(name, id, category)
+```
+
+Alternatively, find IDs on the [City of Winnipeg Open Data
+Portal](https://data.winnipeg.ca):
 
 1.  Browse to [data.winnipeg.ca](https://data.winnipeg.ca)
 2.  Open any dataset
@@ -487,5 +577,5 @@ Portal](https://data.winnipeg.ca) has a unique ID. To find it:
 ## Further reading
 
 - [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
-- [Socrata OData Documentation](https://dev.socrata.com/docs/odata.html)
+- [Socrata Developer Portal](https://dev.socrata.com)
 - [OData V4 Query Options](https://www.odata.org/documentation/)

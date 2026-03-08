@@ -37,6 +37,28 @@ pak::pak("myominnoo/wpgdata")
 library(wpgdata)
 ```
 
+### `peg_catalogue()` — find available datasets
+
+List all datasets on the Winnipeg Open Data Portal with their IDs,
+categories, and last updated dates:
+```{r peg_catalogue}
+peg_catalogue()
+```
+
+Filter by category or search by name to find a dataset ID:
+```{r peg_catalogue_filter, message = FALSE}
+library(dplyr)
+
+# count datasets by category
+peg_catalogue() |>
+  count(category, sort = TRUE)
+
+# search by name
+peg_catalogue() |>
+  filter(grepl("assessment", name, ignore.case = TRUE)) |>
+  select(name, id, updated_at)
+```
+
 ### `peg_info()` — dataset-level information
 
 Get high-level information about a dataset before downloading it:

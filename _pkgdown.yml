@@ -20,6 +20,7 @@ reference:
   - title: "Core functions"
     desc: "Main functions for accessing Winnipeg Open Data"
     contents:
+      - peg_catalogue
       - peg_get
       - peg_query
       - peg_all
@@ -34,4 +35,11 @@ articles:
     navbar: ~
     contents:
       - getting-started
+
+deploy:
+  install_metadata: true
+
+vignettes:
+  build_vignettes: false
+
 

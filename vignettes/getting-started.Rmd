@@ -11,7 +11,8 @@ knitr::opts_chunk$set(
   collapse  = TRUE,
   comment   = "#>",
   message   = FALSE,
-  warning   = FALSE
+  warning   = FALSE,
+  cache     = TRUE
 )
 ```
 
@@ -30,19 +31,60 @@ library(dplyr)
 
 ## Workflow overview
 
-The typical `wpgdata` workflow follows four steps:
+The typical `wpgdata` workflow follows five steps:
+
+| Function | Purpose |
+|---|---|
+| `peg_catalogue()` | Browse all available datasets and find IDs |
+| `peg_info()` | Explore a specific dataset |
+| `peg_metadata()` | Find field names before querying |
+| `peg_query()` | Filter, select, and sort |
+| `peg_all()` | Download all rows |
 ```
-peg_info()      →   peg_metadata()   →   peg_query()   →   peg_all()
-(explore)           (find fields)        (filter)          (download all)
+peg_catalogue()   →   peg_info()   →   peg_metadata()   →   peg_query()   →   peg_all()
+(find datasets)       (explore)        (find fields)        (filter)          (download all)
 ```
 
 ---
 
-## Step 1 — Explore a dataset with `peg_info()`
+## Step 1 — Find datasets with `peg_catalogue()`
 
-Before downloading data, use `peg_info()` to understand what a dataset
-contains — its name, description, category, update frequency, and
-row count:
+Before working with any dataset, use `peg_catalogue()` to browse all
+available datasets on the portal. This is the best starting point when
+you don't yet know a dataset ID:
+```{r peg_catalogue}
+catalogue <- peg_catalogue()
+catalogue
+```
+
+Count datasets by category to get an overview of what's available:
+```{r peg_catalogue_count}
+catalogue |>
+  dplyr::count(category, sort = TRUE)
+```
+
+Search by name to find a specific dataset and retrieve its ID:
+```{r peg_catalogue_search}
+catalogue |>
+  dplyr::filter(grepl("assessment", name, ignore.case = TRUE)) |>
+  dplyr::select(name, id, updated_at)
+```
+
+Use the `id` value in any other `peg_*` function:
+```{r peg_catalogue_id}
+dataset_id <- catalogue |>
+  dplyr::filter(name == "Assessment Parcels") |>
+  dplyr::pull(id)
+
+dataset_id
+```
+
+---
+
+## Step 2 — Explore a dataset with `peg_info()`
+
+Use `peg_info()` to understand what a dataset contains — its name,
+description, category, update frequency, and row count:
 ```{r peg_info}
 peg_info("d4mq-wa44")
 ```
@@ -53,7 +95,7 @@ committing to a large download.
 
 ---
 
-## Step 2 — Find field names with `peg_metadata()`
+## Step 3 — Find field names with `peg_metadata()`
 
 OData queries require exact field names. Use `peg_metadata()` to look
 up the available fields and their types before writing any query:
@@ -74,7 +116,7 @@ meta |>
 
 ---
 
-## Step 3 — Fetch a quick preview with `peg_get()`
+## Step 4 — Fetch a quick preview with `peg_get()`
 
 `peg_get()` fetches the first page of a dataset (up to the server's
 default page size). It is useful for a quick look at the data
@@ -91,7 +133,7 @@ dplyr::glimpse(df)
 
 ---
 
-## Step 4 — Query with `peg_query()`
+## Step 5 — Query with `peg_query()`
 
 `peg_query()` supports five OData parameters:
 
@@ -179,7 +221,7 @@ page_2 <- peg_query("d4mq-wa44", top = 5, skip = 5)
 
 ---
 
-## Step 5 — Download all rows with `peg_all()`
+## Step 6 — Download all rows with `peg_all()`
 
 `peg_all()` automatically paginates through all pages and returns a
 single tibble. It shows a progress bar with row counts and percentage:
@@ -215,8 +257,15 @@ peg_all("d4mq-wa44", max_pages = Inf)
 
 ## Finding dataset IDs
 
-Every dataset on the [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
-has a unique ID. To find it:
+The easiest way is to use `peg_catalogue()` directly in R:
+```{r find_id, eval = FALSE}
+peg_catalogue() |>
+  dplyr::filter(grepl("your search term", name, ignore.case = TRUE)) |>
+  dplyr::select(name, id, category)
+```
+
+Alternatively, find IDs on the
+[City of Winnipeg Open Data Portal](https://data.winnipeg.ca):
 
 1. Browse to [data.winnipeg.ca](https://data.winnipeg.ca)
 2. Open any dataset
@@ -233,5 +282,5 @@ https://data.winnipeg.ca/api/odata/v4/d4mq-wa44
 ## Further reading
 
 - [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
-- [Socrata OData Documentation](https://dev.socrata.com)
+- [Socrata Developer Portal](https://dev.socrata.com)
 - [OData V4 Query Options](https://www.odata.org/documentation/)
