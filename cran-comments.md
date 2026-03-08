@@ -5,17 +5,16 @@
 ## Notes
 
 * New submission
-* "OData" and "Socrata" are flagged as possibly misspelled — these are 
-  intentional technical terms (OData is an ISO standard, Socrata is the 
-  data portal platform). Both are now quoted in DESCRIPTION.
-* Broken Socrata documentation URL has been replaced with the main 
-  developer portal URL.
+* "OData" and "Socrata" are intentional technical terms —
+  'OData' is an ISO/IEC approved standard, 'Socrata' is the
+  data portal platform powering data.winnipeg.ca.
+  Both are quoted in DESCRIPTION.
 
 ## Test environments
 
-* macOS (local), R 4.5.2
-* win-builder R release: 1 NOTE (new submission + spelling)
-* win-builder R devel: pending
+* macOS (local), R 4.5.2 — 0 errors | 0 warnings | 0 notes
+* win-builder R release  — 1 note (new submission only)
+* win-builder R devel    — 1 note (new submission only)
 
 ## Downstream dependencies
 
@@ -26,5 +25,5 @@ This is a new package with no downstream dependencies.
 * This package requires internet access to query the City of Winnipeg
   Open Data Portal (data.winnipeg.ca). All live API tests use
   `skip_on_cran()` and `skip_if_offline()`.
-* The OData V4 endpoint used is publicly available with no
-  authentication required.
+* The OData V4 endpoint is publicly available with no authentication
+  required.
