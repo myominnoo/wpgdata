@@ -41,7 +41,7 @@ peg_info("d4mq-wa44")
 ```
 
 This tells us the dataset was last updated, how many times it has been
-downloaded, and what licence it is published under — all useful before
+downloaded, and what license it is published under — all useful before
 committing to a large download.
 
 ------------------------------------------------------------------------
