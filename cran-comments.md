@@ -1,3 +1,14 @@
+## Resubmission
+
+This is a resubmission. Please ignore the previous submission of v0.1.0 
+and consider this v0.2.0 submission instead. The previous submission has 
+not yet been reviewed.
+
+Changes in v0.2.0:
+* Added `peg_catalogue()` to list all available datasets from the portal
+* Fixed trailing slash in package URL in DESCRIPTION
+* Added `rlang::.data` import to resolve R CMD check note
+
 ## R CMD check results
 
 0 errors | 0 warnings | 1 note
