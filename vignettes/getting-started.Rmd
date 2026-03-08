@@ -233,5 +233,5 @@ https://data.winnipeg.ca/api/odata/v4/d4mq-wa44
 ## Further reading
 
 - [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
-- [Socrata OData Documentation](https://dev.socrata.com/docs/odata.html)
+- [Socrata OData Documentation](https://dev.socrata.com)
 - [OData V4 Query Options](https://www.odata.org/documentation/)
