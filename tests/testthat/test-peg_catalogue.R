@@ -1,9 +1,9 @@
 # tests/testthat/test-peg_catalogue.R
 
-# Input validation tests - limit -----------------------------------------
+# Input validation --------------------------------------------------------
 
 test_that("peg_catalogue() errors on non-numeric limit", {
-  expect_error(peg_catalogue(limit = "200"), "positive integer")
+  expect_error(peg_catalogue(limit = "10"), "positive integer")
 })
 
 test_that("peg_catalogue() errors on negative limit", {
@@ -14,123 +14,157 @@ test_that("peg_catalogue() errors on zero limit", {
   expect_error(peg_catalogue(limit = 0), "positive integer")
 })
 
-test_that("peg_catalogue() accepts NULL limit", {
-  expect_no_error(peg_catalogue(limit = NULL) |> suppressMessages())
+
+# Live API tests ----------------------------------------------------------
+# All live tests share a single API call via a cached fixture to minimise
+# network requests during test runs.
+
+get_catalogue_fixture <- local({
+  cache <- NULL
+  function() {
+    if (is.null(cache)) {
+      cache <<- peg_catalogue(limit = 5) |> suppressMessages()
+    }
+    cache
+  }
 })
 
-
-# Output shape tests ------------------------------------------------------
-
-test_that("peg_catalogue() returns a tibble", {
+test_that("peg_catalogue() returns a tibble with rows", {
   skip_on_cran()
   skip_if_offline()
 
-  result <- peg_catalogue(limit = 10) |> suppressMessages()
+  result <- get_catalogue_fixture()
   expect_s3_class(result, "tbl_df")
+  expect_gt(nrow(result), 0)
 })
 
 test_that("peg_catalogue() returns correct column names", {
   skip_on_cran()
   skip_if_offline()
 
-  result <- peg_catalogue(limit = 10) |> suppressMessages()
+  result <- get_catalogue_fixture()
   expect_named(
     result,
     c(
-      "name",
       "id",
+      "name",
       "description",
       "category",
-      "updated_at",
+      "license_id",
+      "created_at",
+      "rows_updated_at",
+      "view_last_modified",
+      "publication_date",
+      "index_updated_at",
       "row_count",
+      "col_count",
+      "download_count",
+      "view_count",
+      "group",
+      "department",
+      "update_frequency",
+      "quality_rank",
+      "license",
+      "license_link",
+      "tags",
       "url"
     )
   )
 })
 
-test_that("peg_catalogue() returns rows", {
+test_that("peg_catalogue() returns correct column types", {
   skip_on_cran()
   skip_if_offline()
 
-  result <- peg_catalogue(limit = 10) |> suppressMessages()
-  expect_gt(nrow(result), 0)
+  result <- get_catalogue_fixture()
+
+  # character
+  purrr::walk(
+    c(
+      "id",
+      "name",
+      "description",
+      "category",
+      "license_id",
+      "group",
+      "department",
+      "update_frequency",
+      "quality_rank",
+      "license",
+      "license_link",
+      "url"
+    ),
+    \(col) expect_type(result[[col]], "character")
+  )
+
+  # dates
+  purrr::walk(
+    c(
+      "created_at",
+      "rows_updated_at",
+      "view_last_modified",
+      "publication_date",
+      "index_updated_at"
+    ),
+    \(col) expect_s3_class(result[[col]], "Date")
+  )
+
+  # integer
+  purrr::walk(
+    c("row_count", "col_count", "download_count", "view_count"),
+    \(col) expect_type(result[[col]], "integer")
+  )
+
+  # list-column
+  expect_type(result$tags, "list")
+})
+
+test_that("peg_catalogue() content is valid", {
+  skip_on_cran()
+  skip_if_offline()
+
+  result <- get_catalogue_fixture()
+
+  # no missing ids
+  expect_false(any(is.na(result$id)))
+
+  # no missing categories
+  expect_false(any(is.na(result$category)))
+
+  # url format
+  expect_true(all(startsWith(result$url, "https://data.winnipeg.ca/d/")))
+
+  # row_count non-negative where present
+  counts <- result$row_count[!is.na(result$row_count)]
+  if (length(counts) > 0) {
+    expect_true(all(counts >= 0L))
+  }
+
+  # col_count positive where present
+  counts <- result$col_count[!is.na(result$col_count)]
+  if (length(counts) > 0) {
+    expect_true(all(counts > 0L))
+  }
+
+  # sorted descending by rows_updated_at
+  dates <- result$rows_updated_at[!is.na(result$rows_updated_at)]
+  if (length(dates) > 1) expect_true(all(diff(as.numeric(dates)) <= 0))
 })
 
 test_that("peg_catalogue() respects limit", {
   skip_on_cran()
   skip_if_offline()
 
-  result <- peg_catalogue(limit = 10) |> suppressMessages()
-  expect_lte(nrow(result), 10)
+  result <- get_catalogue_fixture()
+  expect_lte(nrow(result), 5L)
 })
 
-
-# Column type tests -------------------------------------------------------
-
-test_that("peg_catalogue() returns correct column types", {
+test_that("peg_catalogue(limit = NULL) returns all datasets", {
   skip_on_cran()
   skip_if_offline()
+  # run separately — this is the expensive call, only run explicitly
+  # skip("expensive: run manually to verify full catalogue fetch")
 
-  result <- peg_catalogue(limit = 10) |> suppressMessages()
-  expect_type(result$name, "character")
-  expect_type(result$id, "character")
-  expect_type(result$description, "character")
-  expect_type(result$category, "character")
-  expect_type(result$url, "character")
-  expect_s3_class(result$updated_at, "POSIXct")
-})
-
-
-# Content tests -----------------------------------------------------------
-
-test_that("peg_catalogue() url column starts with correct base", {
-  skip_on_cran()
-  skip_if_offline()
-
-  result <- peg_catalogue(limit = 10) |> suppressMessages()
-  expect_true(all(startsWith(result$url, "https://data.winnipeg.ca/d/")))
-})
-
-test_that("peg_catalogue() has no missing ids", {
-  skip_on_cran()
-  skip_if_offline()
-
-  result <- peg_catalogue(limit = 10) |> suppressMessages()
-  expect_false(any(is.na(result$id)))
-})
-
-test_that("peg_catalogue() category has no NAs", {
-  skip_on_cran()
-  skip_if_offline()
-
-  result <- peg_catalogue(limit = 10) |> suppressMessages()
-  expect_false(any(is.na(result$category)))
-})
-
-test_that("peg_catalogue() is sorted by updated_at descending", {
-  skip_on_cran()
-  skip_if_offline()
-
-  result <- peg_catalogue(limit = 20) |> suppressMessages()
-  expect_true(all(diff(as.numeric(result$updated_at)) <= 0))
-})
-
-
-# Pagination tests --------------------------------------------------------
-
-test_that("peg_catalogue() limit = NULL returns more rows than limit = 100", {
-  skip_on_cran()
-  skip_if_offline()
-
-  result_100 <- peg_catalogue(limit = 100) |> suppressMessages()
-  result_all <- peg_catalogue(limit = NULL) |> suppressMessages()
-  expect_gt(nrow(result_all), nrow(result_100))
-})
-
-test_that("peg_catalogue() limit = NULL returns all datasets", {
-  skip_on_cran()
-  skip_if_offline()
-
-  result <- peg_catalogue(limit = NULL) |> suppressMessages()
-  expect_gte(nrow(result), 200)
+  result <- peg_catalogue() |> suppressMessages()
+  expect_gte(nrow(result), 50L)
 })

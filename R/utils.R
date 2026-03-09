@@ -239,54 +239,6 @@ parse_info <- function(response) {
 
 
 #' @noRd
-parse_catalogue <- function(response) {
-  if (httr2::resp_body_raw(response) |> length() == 0) {
-    cli::cli_abort("Response body is empty. The server returned no content.")
-  }
-
-  parsed <- tryCatch(
-    httr2::resp_body_json(response),
-    error = \(e) {
-      cli::cli_abort("Failed to parse catalogue response: {e$message}")
-    }
-  )
-
-  if (is.null(parsed) || !is.list(parsed)) {
-    cli::cli_abort("Unexpected response structure from the catalogue API.")
-  }
-
-  results <- purrr::pluck(parsed, "results")
-
-  if (is.null(results) || length(results) == 0) {
-    cli::cli_warn("No datasets found in the Winnipeg Open Data catalogue.")
-    return(tibble::tibble())
-  }
-
-  results |>
-    purrr::map(\(x) {
-      tibble::tibble(
-        name = x$resource$name %||% NA_character_,
-        id = x$resource$id %||% NA_character_,
-        description = x$resource$description %||% NA_character_,
-        category = x$classification$domain_category %||% NA_character_,
-        updated_at = x$resource$updatedAt %||% NA_character_,
-        row_count = x$resource$download_count %||% NA_integer_
-      )
-    }) |>
-    purrr::list_rbind() |>
-    dplyr::mutate(
-      updated_at = as.POSIXct(
-        .data$updated_at,
-        format = "%Y-%m-%dT%H:%M:%S",
-        tz = "UTC"
-      ),
-      url = paste0("https://data.winnipeg.ca/d/", .data$id),
-      category = dplyr::coalesce(.data$category, "Uncategorized")
-    ) |>
-    dplyr::arrange(dplyr::desc(.data$updated_at))
-}
-
-#' @noRd
 get_catalogue_count <- function() {
   response <- httr2::request("https://api.us.socrata.com/api/catalog/v1") |>
     httr2::req_url_query(
@@ -381,3 +333,133 @@ get_total_count <- function(dataset_id) {
 # re-export .data pronoun so R CMD check doesn't flag it
 #' @importFrom rlang .data
 NULL
+
+
+# ---- Parse Catalogue -----------------------------------
+
+#' @noRd
+parse_catalogue <- function(response) {
+  if (httr2::resp_body_raw(response) |> length() == 0) {
+    cli::cli_abort("Response body is empty. The server returned no content.")
+  }
+
+  parsed <- tryCatch(
+    httr2::resp_body_json(response),
+    error = \(e) {
+      cli::cli_abort("Failed to parse catalogue response: {e$message}")
+    }
+  )
+
+  if (is.null(parsed) || !is.list(parsed)) {
+    cli::cli_abort("Unexpected response structure from the catalogue API.")
+  }
+
+  results <- purrr::pluck(parsed, "results")
+
+  if (is.null(results) || length(results) == 0) {
+    cli::cli_warn("No datasets found in the Winnipeg Open Data catalogue.")
+    return(tibble::tibble())
+  }
+
+  results |>
+    purrr::map_chr(\(x) x$resource$id %||% NA_character_) |>
+    purrr::discard(is.na) |>
+    fetch_metadata_parallel() |>
+    dplyr::mutate(
+      url = paste0("https://data.winnipeg.ca/d/", .data$id),
+      category = dplyr::coalesce(.data$category, "Uncategorized")
+    ) |>
+    dplyr::arrange(dplyr::desc(.data$rows_updated_at))
+}
+
+
+# --- Parallel request --------------------
+
+#' @noRd
+fetch_metadata_req <- function(dataset_id) {
+  build_url(dataset_id, api = "views") |>
+    httr2::request() |>
+    httr2::req_headers("Accept" = "application/json") |>
+    httr2::req_error(is_error = \(resp) FALSE)
+}
+
+
+#' @noRd
+fetch_metadata_parallel <- function(ids) {
+  requests <- purrr::map(ids, fetch_metadata_req)
+
+  responses <- httr2::req_perform_parallel(
+    requests,
+    on_error = "continue",
+    progress = TRUE
+  )
+
+  purrr::map2(responses, ids, \(resp, id) {
+    # catches network-level errors (connection refused, timeout, etc.)
+    if (inherits(resp, "error")) {
+      cli::cli_warn("Request failed for dataset {.val {id}}, skipping.")
+      return(tibble::tibble(id = id))
+    }
+
+    # catches HTTP errors (404, 500, etc.) not thrown due to req_error override
+    status <- httr2::resp_status(resp)
+    if (status >= 400) {
+      cli::cli_warn(
+        "HTTP {status} for dataset {.val {id}}, skipping."
+      )
+      return(tibble::tibble(id = id))
+    }
+
+    fetch_metadata_parse(resp, id)
+  }) |>
+    purrr::list_rbind()
+}
+
+#' @noRd
+fetch_metadata_parse <- function(response, dataset_id) {
+  if (httr2::resp_body_raw(response) |> length() == 0) {
+    cli::cli_warn("Empty response for dataset {.val {dataset_id}}, skipping.")
+    return(tibble::tibble(id = dataset_id))
+  }
+
+  v <- httr2::resp_body_json(response)
+
+  tibble::tibble(
+    # identity
+    id = dataset_id,
+    name = v$name %||% NA_character_,
+    description = v$description %||% NA_character_,
+    category = v$category %||% NA_character_,
+    license_id = v$licenseId %||% NA_character_,
+
+    # dates
+    created_at = .parse_unix(v$createdAt),
+    rows_updated_at = .parse_unix(v$rowsUpdatedAt),
+    view_last_modified = .parse_unix(v$viewLastModified),
+    publication_date = .parse_unix(v$publicationDate),
+    index_updated_at = .parse_unix(v$indexUpdatedAt),
+
+    # structure
+    row_count = as.integer(
+      v$columns[[1]]$cachedContents$count %||% NA_character_
+    ),
+    col_count = length(v$columns %||% list()),
+
+    # engagement
+    download_count = v$downloadCount %||% NA_integer_,
+    view_count = v$viewCount %||% NA_integer_,
+
+    # custom metadata
+    group = v$metadata$custom_fields$Department$Group %||% NA_character_,
+    department = v$metadata$custom_fields$Department$Department %||%
+      NA_character_,
+    update_frequency = v$metadata$custom_fields$`Update Frequency`$Interval %||%
+      NA_character_,
+    quality_rank = v$metadata$custom_fields$Quality$Rank %||% NA_character_, # fixed: was incorrectly under Department
+    license = v$license$name %||% NA_character_,
+    license_link = v$license$termsLink %||% NA_character_,
+
+    # tags
+    tags = list(v$tags %||% NA_character_)
+  )
+}
