@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">wpgdata</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,20 @@
       <small>Source: <a href="https://github.com/myominnoo/wpgdata/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="wpgdata-030-development-version">wpgdata 0.3.0 (development version)<a class="anchor" aria-label="anchor" href="#wpgdata-030-development-version"></a></h2>
+<div class="section level3">
+<h3 id="peg_catalogue-0-3-0"><code>peg_catalogue()</code><a class="anchor" aria-label="anchor" href="#peg_catalogue-0-3-0"></a></h3>
+<ul><li>Completely overhauled catalogue fetching. Metadata is now sourced from the <code>/api/views/{id}.json</code> endpoint per dataset, replacing the Socrata Discovery API as the sole data source.</li>
+<li>Catalogue pages are now fetched in parallel using <code><a href="https://httr2.r-lib.org/reference/req_perform_parallel.html" class="external-link">httr2::req_perform_parallel()</a></code>.</li>
+<li>Added new columns: <code>row_count</code>, <code>col_count</code>, <code>view_count</code>, <code>group</code>, <code>department</code>, <code>update_frequency</code>, <code>quality_rank</code>, <code>license</code>, <code>license_link</code>, <code>tags</code>, <code>license_id</code>, <code>rows_updated_at</code>, <code>view_last_modified</code>, <code>publication_date</code>, <code>index_updated_at</code>.</li>
+<li>
+<code>row_count</code> is now sourced from cached column statistics (<code>cachedContents</code>), making it fast without requiring a separate OData count request.</li>
+<li>Removed <code>limit</code> default of <code>200</code> — function now fetches all datasets by default.</li>
+<li>Results are sorted by <code>rows_updated_at</code> descending.</li>
+<li>Improved error handling: HTTP errors and network failures per dataset are caught individually and skipped with a warning rather than aborting the full fetch.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="wpgdata-020">wpgdata 0.2.0<a class="anchor" aria-label="anchor" href="#wpgdata-020"></a></h2>
 <div class="section level3">
