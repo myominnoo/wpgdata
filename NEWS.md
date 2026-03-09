@@ -1,4 +1,4 @@
-# wpgdata (development version 0.3.0)
+# wpgdata 0.3.0 (development version)
 
 ## `peg_catalogue()`
 

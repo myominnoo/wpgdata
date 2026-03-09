@@ -66,9 +66,9 @@ peg_catalogue() |>
   count(category, sort = TRUE)
 
 # search by name
-peg_catalogue() |>
+peg_catalogue(10) |>
   filter(grepl("assessment", name, ignore.case = TRUE)) |>
-  select(name, id, updated_at)
+  select(name, id, rows_updated_at)
 ```
 
 ### `peg_info()` — dataset-level information

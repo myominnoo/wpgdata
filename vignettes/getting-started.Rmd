@@ -67,7 +67,7 @@ Search by name to find a specific dataset and retrieve its ID:
 ```{r peg_catalogue_search}
 catalogue |>
   dplyr::filter(grepl("assessment", name, ignore.case = TRUE)) |>
-  dplyr::select(name, id, updated_at)
+  dplyr::select(name, id, rows_updated_at)
 ```
 
 Use the `id` value in any other `peg_*` function:

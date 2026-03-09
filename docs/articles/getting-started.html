@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">wpgdata</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -123,20 +123,25 @@ point when you don’t yet know a dataset ID:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">catalogue</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">catalogue</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 200 × 7</span></span></span>
-<span><span class="co">#&gt;    name           id    description category updated_at          row_count url  </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>                  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Plow Zone Sch… tix9… <span style="color: #949494;">"</span>Scheduled… City Pl… 2026-03-08 <span style="color: #949494;">15:31:04</span>       630 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 311 Call Wait… vrzk… <span style="color: #949494;">"</span>Caller wa… Contact… 2026-03-08 <span style="color: #949494;">15:30:21</span>       701 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> WFPS Call Logs yg42… <span style="color: #949494;">"</span>The data … Fire an… 2026-03-08 <span style="color: #949494;">15:28:53</span>      <span style="text-decoration: underline;">1</span>349 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Council Votin… f9mn… <span style="color: #949494;">"</span>On Septem… Council… 2026-03-08 <span style="color: #949494;">15:15:00</span>       347 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> River Water L… tgrf… <span style="color: #949494;">"</span>Record of… Water a… 2026-03-08 <span style="color: #949494;">15:01:27</span>       731 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Accessibility… fxq5… <span style="color: #949494;">"</span>This data… Streets  2026-03-08 <span style="color: #949494;">15:00:57</span>        67 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> FIPPA Request… pfbi… <span style="color: #949494;">"</span>The Freed… Organiz… 2026-03-08 <span style="color: #949494;">11:41:58</span>       484 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> WPA Paystation b85e… <span style="color: #949494;">"</span>Onstreet … Parking  2026-03-08 <span style="color: #949494;">10:03:40</span>       385 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Walkways       jdeq… <span style="color: #949494;">"</span>This data… City Pl… 2026-03-08 <span style="color: #949494;">10:03:29</span>       326 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Daily Adult M… du7c… <span style="color: #949494;">"</span>The data … Insect … 2026-03-08 <span style="color: #949494;">10:00:15</span>      <span style="text-decoration: underline;">1</span>445 http…</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 190 more rows</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 216 × 22</span></span></span>
+<span><span class="co">#&gt;    id        name     description category license_id created_at rows_updated_at</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> yg42-q284 WFPS Ca… <span style="color: #949494;">"</span>The data … Fire an… OGL_CANADA 2020-12-14 2026-03-09     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> vrzk-mj7v 311 Cal… <span style="color: #949494;">"</span>Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-09     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> tix9-r5tc Plow Zo… <span style="color: #949494;">"</span>Scheduled… City Pl… <span style="color: #BB0000;">NA</span>         2016-10-18 2026-03-09     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> tgrf-v2zc River W… <span style="color: #949494;">"</span>Record of… Water a… OGL_CANADA 2018-03-15 2026-03-09     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> f9mn-vti8 Council… <span style="color: #949494;">"</span>On Septem… Council… OGL_CANADA 2019-10-01 2026-03-09     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> u7f6-5326 311 Req… <span style="color: #949494;">"</span>This data… Contact… OGL_CANADA 2019-08-26 2026-03-09     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> fxq5-ign2 Accessi… <span style="color: #949494;">"</span>This data… Streets  OGL_CANADA 2023-01-18 2026-03-09     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> d4mq-wa44 Assessm… <span style="color: #949494;">"</span>List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-08     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> iibp-28fx Burial … <span style="color: #949494;">"</span>Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-08     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> gnxp-9hpt Public … <span style="color: #949494;">"</span>Public No… Develop… <span style="color: #BB0000;">NA</span>         2016-08-08 2026-03-08     </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 206 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 15 more variables: view_last_modified &lt;date&gt;, publication_date &lt;date&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   index_updated_at &lt;date&gt;, row_count &lt;int&gt;, col_count &lt;int&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   download_count &lt;int&gt;, view_count &lt;int&gt;, group &lt;chr&gt;, department &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   update_frequency &lt;chr&gt;, quality_rank &lt;chr&gt;, license &lt;chr&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   license_link &lt;chr&gt;, tags &lt;list&gt;, url &lt;chr&gt;</span></span></span></code></pre></div>
 <p>Count datasets by category to get an overview of what’s
 available:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -145,26 +150,26 @@ available:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 26 × 2</span></span></span>
 <span><span class="co">#&gt;    category                                                   n</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Census                                                    29</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> City Planning                                             25</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Census                                                    35</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> City Planning                                             27</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Development Approvals, Building Permits, &amp; Inspections    23</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Transportation Planning &amp; Traffic Management              18</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Uncategorized                                             14</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Council Services                                          13</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Organizational Support Services                            8</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Assessment, Taxation, &amp; Corporate                          7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Contact Centre - 311                                       7</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Water and Waste                                            7</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Uncategorized                                             16</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Council Services                                          15</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> Recreation                                                 9</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> Organizational Support Services                            8</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> Assessment, Taxation, &amp; Corporate                          7</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Contact Centre - 311                                       7</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 16 more rows</span></span></span></code></pre></div>
 <p>Search by name to find a specific dataset and retrieve its ID:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">catalogue</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"assessment"</span>, <span class="va">name</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">updated_at</span><span class="op">)</span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">rows_updated_at</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
-<span><span class="co">#&gt;   name               id        updated_at         </span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>             </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Assessment Parcels d4mq-wa44 2026-03-08 <span style="color: #949494;">09:32:08</span></span></span></code></pre></div>
+<span><span class="co">#&gt;   name               id        rows_updated_at</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Assessment Parcels d4mq-wa44 2026-03-08</span></span></code></pre></div>
 <p>Use the <code>id</code> value in any other <code>peg_*</code>
 function:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">

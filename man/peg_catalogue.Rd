@@ -4,51 +4,76 @@
 \alias{peg_catalogue}
 \title{List all datasets from the Winnipeg Open Data Portal}
 \usage{
-peg_catalogue(limit = 200)
+peg_catalogue(limit = NULL)
 }
 \arguments{
 \item{limit}{An integer specifying the maximum number of datasets to
-return. Defaults to \code{200}. Set to \code{NULL} to fetch all available
-datasets.}
+return. Set to \code{NULL} to fetch all available datasets.}
 }
 \value{
 A tibble with one row per dataset containing:
 \describe{
-\item{name}{Dataset name}
 \item{id}{Dataset ID — use this in \code{\link[=peg_get]{peg_get()}},
 \code{\link[=peg_query]{peg_query()}}, \code{\link[=peg_all]{peg_all()}},
 \code{\link[=peg_metadata]{peg_metadata()}}, and \code{\link[=peg_info]{peg_info()}}}
+\item{name}{Dataset name}
 \item{description}{Dataset description}
-\item{category}{Dataset category}
-\item{updated_at}{Date and time of last update}
-\item{row_count}{Number of downloads}
+\item{category}{Dataset category, defaults to \code{"Uncategorized"} if missing}
+\item{license_id}{License identifier (e.g. \code{"OGL_CANADA"})}
+\item{created_at}{Date the dataset was first created}
+\item{rows_updated_at}{Date the data was last updated. Results are
+sorted descending by this field}
+\item{view_last_modified}{Date the view definition was last modified}
+\item{publication_date}{Date the dataset was published}
+\item{index_updated_at}{Date the search index was last updated}
+\item{row_count}{Number of rows, sourced from cached column statistics}
+\item{col_count}{Number of columns}
+\item{download_count}{Total number of downloads}
+\item{view_count}{Total number of page views}
+\item{group}{Departmental group responsible for the dataset}
+\item{department}{City department responsible for the dataset}
+\item{update_frequency}{How often the dataset is refreshed (e.g. \code{"Daily"})}
+\item{quality_rank}{Data quality rank assigned by the portal (e.g. \code{"Gold"})}
+\item{license}{Full license name (e.g. \code{"Canada Open Government Licence"})}
+\item{license_link}{URL to the full license terms}
+\item{tags}{List-column of keyword tags associated with the dataset}
 \item{url}{Direct URL to the dataset on data.winnipeg.ca}
 }
 }
 \description{
 Retrieves a catalogue of all publicly available datasets from the
 City of Winnipeg Open Data Portal (data.winnipeg.ca) using the
-Socrata Discovery API.
+Socrata Discovery API. Metadata is fetched in parallel via the
+\verb{/api/views} endpoint for each dataset.
 }
 \examples{
 \dontrun{
 # list all available datasets
 peg_catalogue()
 
-# fetch everything
-peg_catalogue(limit = NULL)
-
 # find datasets by category
 library(dplyr)
 peg_catalogue() |>
-  filter(category == "Transportation")
+  dplyr::filter(category == "Transportation")
 
 # search by name
 peg_catalogue() |>
-  filter(grepl("assessment", name, ignore.case = TRUE))
+  dplyr::filter(grepl("assessment", name, ignore.case = TRUE))
 
 # count datasets by category
 peg_catalogue() |>
-  count(category, sort = TRUE)
+  dplyr::count(category, sort = TRUE)
+
+# find recently updated datasets
+peg_catalogue() |>
+  dplyr::filter(rows_updated_at >= Sys.Date() - 30)
+
+# find the largest datasets by row count
+peg_catalogue() |>
+  dplyr::arrange(dplyr::desc(row_count))
+
+# filter by department
+peg_catalogue() |>
+  dplyr::filter(department == "Customer Service & Communications")
 }
 }

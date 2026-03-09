@@ -30,7 +30,7 @@
 
     <a class="navbar-brand me-2" href="index.html">wpgdata</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,20 +90,25 @@
 <p>List all datasets on the Winnipeg Open Data Portal with their IDs, categories, and last updated dates:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 200 × 7</span></span>
-<span><span class="co">#&gt;    name           id    description category updated_at          row_count url  </span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;          &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;    &lt;dttm&gt;                  &lt;int&gt; &lt;chr&gt;</span></span>
-<span><span class="co">#&gt;  1 Plow Zone Sch… tix9… "Scheduled… City Pl… 2026-03-08 16:50:52       630 http…</span></span>
-<span><span class="co">#&gt;  2 311 Call Wait… vrzk… "Caller wa… Contact… 2026-03-08 16:50:32       701 http…</span></span>
-<span><span class="co">#&gt;  3 WFPS Call Logs yg42… "The data … Fire an… 2026-03-08 16:46:07      1349 http…</span></span>
-<span><span class="co">#&gt;  4 Council Votin… f9mn… "On Septem… Council… 2026-03-08 16:14:49       347 http…</span></span>
-<span><span class="co">#&gt;  5 River Water L… tgrf… "Record of… Water a… 2026-03-08 16:01:44       731 http…</span></span>
-<span><span class="co">#&gt;  6 Accessibility… fxq5… "This data… Streets  2026-03-08 16:00:58        67 http…</span></span>
-<span><span class="co">#&gt;  7 FIPPA Request… pfbi… "The Freed… Organiz… 2026-03-08 11:41:58       484 http…</span></span>
-<span><span class="co">#&gt;  8 WPA Paystation b85e… "Onstreet … Parking  2026-03-08 10:03:40       385 http…</span></span>
-<span><span class="co">#&gt;  9 Walkways       jdeq… "This data… City Pl… 2026-03-08 10:03:29       326 http…</span></span>
-<span><span class="co">#&gt; 10 Daily Adult M… du7c… "The data … Insect … 2026-03-08 10:00:15      1445 http…</span></span>
-<span><span class="co">#&gt; # ℹ 190 more rows</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 216 × 22</span></span>
+<span><span class="co">#&gt;    id        name     description category license_id created_at rows_updated_at</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;      &lt;date&gt;     &lt;date&gt;         </span></span>
+<span><span class="co">#&gt;  1 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-09     </span></span>
+<span><span class="co">#&gt;  2 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-09     </span></span>
+<span><span class="co">#&gt;  3 tix9-r5tc Plow Zo… "Scheduled… City Pl… &lt;NA&gt;       2016-10-18 2026-03-09     </span></span>
+<span><span class="co">#&gt;  4 tgrf-v2zc River W… "Record of… Water a… OGL_CANADA 2018-03-15 2026-03-09     </span></span>
+<span><span class="co">#&gt;  5 f9mn-vti8 Council… "On Septem… Council… OGL_CANADA 2019-10-01 2026-03-09     </span></span>
+<span><span class="co">#&gt;  6 u7f6-5326 311 Req… "This data… Contact… OGL_CANADA 2019-08-26 2026-03-09     </span></span>
+<span><span class="co">#&gt;  7 fxq5-ign2 Accessi… "This data… Streets  OGL_CANADA 2023-01-18 2026-03-09     </span></span>
+<span><span class="co">#&gt;  8 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-08     </span></span>
+<span><span class="co">#&gt;  9 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-08     </span></span>
+<span><span class="co">#&gt; 10 gnxp-9hpt Public … "Public No… Develop… &lt;NA&gt;       2016-08-08 2026-03-08     </span></span>
+<span><span class="co">#&gt; # ℹ 206 more rows</span></span>
+<span><span class="co">#&gt; # ℹ 15 more variables: view_last_modified &lt;date&gt;, publication_date &lt;date&gt;,</span></span>
+<span><span class="co">#&gt; #   index_updated_at &lt;date&gt;, row_count &lt;int&gt;, col_count &lt;int&gt;,</span></span>
+<span><span class="co">#&gt; #   download_count &lt;int&gt;, view_count &lt;int&gt;, group &lt;chr&gt;, department &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   update_frequency &lt;chr&gt;, quality_rank &lt;chr&gt;, license &lt;chr&gt;,</span></span>
+<span><span class="co">#&gt; #   license_link &lt;chr&gt;, tags &lt;list&gt;, url &lt;chr&gt;</span></span></code></pre></div>
 <p>Filter by category or search by name to find a dataset ID:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
@@ -114,26 +119,26 @@
 <span><span class="co">#&gt; # A tibble: 26 × 2</span></span>
 <span><span class="co">#&gt;    category                                                   n</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;                                                  &lt;int&gt;</span></span>
-<span><span class="co">#&gt;  1 Census                                                    29</span></span>
-<span><span class="co">#&gt;  2 City Planning                                             25</span></span>
+<span><span class="co">#&gt;  1 Census                                                    35</span></span>
+<span><span class="co">#&gt;  2 City Planning                                             27</span></span>
 <span><span class="co">#&gt;  3 Development Approvals, Building Permits, &amp; Inspections    23</span></span>
 <span><span class="co">#&gt;  4 Transportation Planning &amp; Traffic Management              18</span></span>
-<span><span class="co">#&gt;  5 Uncategorized                                             14</span></span>
-<span><span class="co">#&gt;  6 Council Services                                          13</span></span>
-<span><span class="co">#&gt;  7 Organizational Support Services                            8</span></span>
-<span><span class="co">#&gt;  8 Assessment, Taxation, &amp; Corporate                          7</span></span>
-<span><span class="co">#&gt;  9 Contact Centre - 311                                       7</span></span>
-<span><span class="co">#&gt; 10 Water and Waste                                            7</span></span>
+<span><span class="co">#&gt;  5 Uncategorized                                             16</span></span>
+<span><span class="co">#&gt;  6 Council Services                                          15</span></span>
+<span><span class="co">#&gt;  7 Recreation                                                 9</span></span>
+<span><span class="co">#&gt;  8 Organizational Support Services                            8</span></span>
+<span><span class="co">#&gt;  9 Assessment, Taxation, &amp; Corporate                          7</span></span>
+<span><span class="co">#&gt; 10 Contact Centre - 311                                       7</span></span>
 <span><span class="co">#&gt; # ℹ 16 more rows</span></span>
 <span></span>
 <span><span class="co"># search by name</span></span>
-<span><span class="fu"><a href="reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="fu"><a href="reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"assessment"</span>, <span class="va">name</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">updated_at</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">rows_updated_at</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span><span class="co">#&gt;   name               id        updated_at         </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;              &lt;chr&gt;     &lt;dttm&gt;             </span></span>
-<span><span class="co">#&gt; 1 Assessment Parcels d4mq-wa44 2026-03-08 09:32:08</span></span></code></pre></div>
+<span><span class="co">#&gt;   name               id        rows_updated_at</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;              &lt;chr&gt;     &lt;date&gt;         </span></span>
+<span><span class="co">#&gt; 1 Assessment Parcels d4mq-wa44 2026-03-08</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="peg_info--dataset-level-information">

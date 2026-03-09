@@ -41,20 +41,25 @@ starting point when you don’t yet know a dataset ID:
 ``` r
 catalogue <- peg_catalogue()
 catalogue
-#> # A tibble: 200 × 7
-#>    name           id    description category updated_at          row_count url  
-#>    <chr>          <chr> <chr>       <chr>    <dttm>                  <int> <chr>
-#>  1 Plow Zone Sch… tix9… "Scheduled… City Pl… 2026-03-08 15:31:04       630 http…
-#>  2 311 Call Wait… vrzk… "Caller wa… Contact… 2026-03-08 15:30:21       701 http…
-#>  3 WFPS Call Logs yg42… "The data … Fire an… 2026-03-08 15:28:53      1349 http…
-#>  4 Council Votin… f9mn… "On Septem… Council… 2026-03-08 15:15:00       347 http…
-#>  5 River Water L… tgrf… "Record of… Water a… 2026-03-08 15:01:27       731 http…
-#>  6 Accessibility… fxq5… "This data… Streets  2026-03-08 15:00:57        67 http…
-#>  7 FIPPA Request… pfbi… "The Freed… Organiz… 2026-03-08 11:41:58       484 http…
-#>  8 WPA Paystation b85e… "Onstreet … Parking  2026-03-08 10:03:40       385 http…
-#>  9 Walkways       jdeq… "This data… City Pl… 2026-03-08 10:03:29       326 http…
-#> 10 Daily Adult M… du7c… "The data … Insect … 2026-03-08 10:00:15      1445 http…
-#> # ℹ 190 more rows
+#> # A tibble: 216 × 22
+#>    id        name     description category license_id created_at rows_updated_at
+#>    <chr>     <chr>    <chr>       <chr>    <chr>      <date>     <date>         
+#>  1 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-09     
+#>  2 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-09     
+#>  3 tix9-r5tc Plow Zo… "Scheduled… City Pl… NA         2016-10-18 2026-03-09     
+#>  4 tgrf-v2zc River W… "Record of… Water a… OGL_CANADA 2018-03-15 2026-03-09     
+#>  5 f9mn-vti8 Council… "On Septem… Council… OGL_CANADA 2019-10-01 2026-03-09     
+#>  6 u7f6-5326 311 Req… "This data… Contact… OGL_CANADA 2019-08-26 2026-03-09     
+#>  7 fxq5-ign2 Accessi… "This data… Streets  OGL_CANADA 2023-01-18 2026-03-09     
+#>  8 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-08     
+#>  9 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-08     
+#> 10 gnxp-9hpt Public … "Public No… Develop… NA         2016-08-08 2026-03-08     
+#> # ℹ 206 more rows
+#> # ℹ 15 more variables: view_last_modified <date>, publication_date <date>,
+#> #   index_updated_at <date>, row_count <int>, col_count <int>,
+#> #   download_count <int>, view_count <int>, group <chr>, department <chr>,
+#> #   update_frequency <chr>, quality_rank <chr>, license <chr>,
+#> #   license_link <chr>, tags <list>, url <chr>
 ```
 
 Count datasets by category to get an overview of what’s available:
@@ -65,16 +70,16 @@ catalogue |>
 #> # A tibble: 26 × 2
 #>    category                                                   n
 #>    <chr>                                                  <int>
-#>  1 Census                                                    29
-#>  2 City Planning                                             25
+#>  1 Census                                                    35
+#>  2 City Planning                                             27
 #>  3 Development Approvals, Building Permits, & Inspections    23
 #>  4 Transportation Planning & Traffic Management              18
-#>  5 Uncategorized                                             14
-#>  6 Council Services                                          13
-#>  7 Organizational Support Services                            8
-#>  8 Assessment, Taxation, & Corporate                          7
-#>  9 Contact Centre - 311                                       7
-#> 10 Water and Waste                                            7
+#>  5 Uncategorized                                             16
+#>  6 Council Services                                          15
+#>  7 Recreation                                                 9
+#>  8 Organizational Support Services                            8
+#>  9 Assessment, Taxation, & Corporate                          7
+#> 10 Contact Centre - 311                                       7
 #> # ℹ 16 more rows
 ```
 
@@ -83,11 +88,11 @@ Search by name to find a specific dataset and retrieve its ID:
 ``` r
 catalogue |>
   dplyr::filter(grepl("assessment", name, ignore.case = TRUE)) |>
-  dplyr::select(name, id, updated_at)
+  dplyr::select(name, id, rows_updated_at)
 #> # A tibble: 1 × 3
-#>   name               id        updated_at         
-#>   <chr>              <chr>     <dttm>             
-#> 1 Assessment Parcels d4mq-wa44 2026-03-08 09:32:08
+#>   name               id        rows_updated_at
+#>   <chr>              <chr>     <date>         
+#> 1 Assessment Parcels d4mq-wa44 2026-03-08
 ```
 
 Use the `id` value in any other `peg_*` function:
