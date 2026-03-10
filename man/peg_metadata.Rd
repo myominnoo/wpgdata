@@ -11,7 +11,7 @@ peg_metadata(dataset_id)
 }
 \value{
 A tibble with columns \code{name}, \code{field_name}, \code{type}, and
-\code{description}. Use \code{field_name} values in \code{\link[=peg_query]{peg_query()}} for
+\code{description}. Use \code{field_name} values in \code{\link[=peg_data]{peg_data()}} for
 filtering and selecting columns.
 }
 \description{

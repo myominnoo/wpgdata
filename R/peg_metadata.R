@@ -3,7 +3,7 @@
 #' @param dataset_id A character string of the dataset ID e.g. `"d4mq-wa44"`
 #'
 #' @return A tibble with columns `name`, `field_name`, `type`, and
-#'   `description`. Use `field_name` values in [wpgdata::peg_query()] for
+#'   `description`. Use `field_name` values in [wpgdata::peg_data()] for
 #'   filtering and selecting columns.
 #' @export
 #'

@@ -1,3 +1,6 @@
+utils::globalVariables(".data")
+
+
 # -----------------------------------------------------------------------------
 # 4. Shared utilities
 # -----------------------------------------------------------------------------
@@ -30,12 +33,14 @@ build_url <- function(dataset_id, api = c("odata", "views"), params = list()) {
   query_string <- params |>
     purrr::imap_chr(\(value, name) {
       glue::glue(
-        "${name}={utils::URLencode(as.character(value), reserved = FALSE)}"
+        "${name}={utils::URLencode(as.character(value), reserved = TRUE)}"
       )
     }) |>
     paste(collapse = "&")
 
-  glue::glue("{base_url}?{query_string}")
+  url <- glue::glue("{base_url}?{query_string}")
+  # message("DEBUG build_url: ", url)
+  url
 }
 
 
@@ -73,7 +78,6 @@ handle_errors <- function(response) {
   if (is.null(x)) {
     return(as.Date(NA))
   }
-  # [10] guard against non-numeric — e.g. server returns "" or a string
   if (!is.numeric(x)) {
     cli::cli_warn(
       "Expected a numeric Unix timestamp, got {.cls {class(x)}}. Returning NA."

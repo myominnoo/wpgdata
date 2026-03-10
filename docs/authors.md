@@ -10,11 +10,11 @@
 Source:
 [`DESCRIPTION`](https://github.com/myominnoo/wpgdata/blob/HEAD/DESCRIPTION)
 
-Oo M (2026). *wpgdata: Access the Winnipeg Open Data Portal via OData
-V4*. R package version 0.3.0, <https://myominnoo.github.io/wpgdata>.
+Oo M (2026). *wpgdata: Access the Winnipeg Open Data Portal*. R package
+version 0.3.0, <https://myominnoo.github.io/wpgdata>.
 
     @Manual{,
-      title = {wpgdata: Access the Winnipeg Open Data Portal via OData V4},
+      title = {wpgdata: Access the Winnipeg Open Data Portal},
       author = {Myo Minn Oo},
       year = {2026},
       note = {R package version 0.3.0},

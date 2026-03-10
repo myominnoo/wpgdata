@@ -32,9 +32,10 @@
 #'   e.g. `"total_assessed_value desc"`.
 #' @param max_connections A positive integer controlling how many HTTP
 #'   requests are in-flight at once. When `NULL` (the default), the value is
-#'   auto-detected as `2 * parallel::detectCores()`, capped at 10 and at the
-#'   number of pages required. Supply an explicit value to override — lower if
-#'   the server rate-limits, higher if you have headroom.
+#'   auto-detected as `2 * parallel::detectCores()`, capped at
+#'   `.MAX_CONNECTIONS` (20) and at the number of pages required. Supply an
+#'   explicit value to override — lower if the server rate-limits, higher if
+#'   you have headroom.
 #'
 #' @return A [tibble::tibble()] with the requested rows in their original order.
 #' @export
@@ -106,10 +107,14 @@ peg_data <- function(
     max_connections <- as.integer(max_connections)
   }
 
-  # Capture filter before any calls alter the environment
+  # Capture filter before any calls alter the environment.
+  # If the user passed a pre-built variable, evaluate it to get the string.
   filter_expr <- rlang::enexpr(filter)
+  if (is.symbol(filter_expr)) {
+    filter_expr <- rlang::eval_tidy(filter_expr, env = rlang::caller_env())
+  }
 
-  # ── 2. Base query params (shared across all page requests) ───────────────
+  # ── 2. Base query params (shared across count + all page requests) ───────
 
   base_params <- list()
 
@@ -126,10 +131,14 @@ peg_data <- function(
   base_skip <- skip %||% 0L
 
   # ── 3. Bootstrap: fire count + page 0 simultaneously ────────────────────
-  # Saves one full round trip compared to a sequential get_total_count() call
-  # followed by the first data request.
+  # The count request includes base_params (especially filter) so the count
+  # reflects the filtered row total, not the full dataset size.
+  # Saves one full round trip vs sequential count-then-fetch.
 
-  count_req <- build_url(dataset_id, params = list("count" = "true")) |>
+  count_req <- build_url(
+    dataset_id,
+    params = c(base_params, list("count" = "true"))
+  ) |>
     httr2::request() |>
     httr2::req_headers("Accept" = "application/json") |>
     httr2::req_error(is_error = \(resp) FALSE) |>
@@ -156,7 +165,8 @@ peg_data <- function(
     progress = FALSE
   )
 
-  # parse count
+  # ── parse count ──────────────────────────────────────────────────────────
+
   count_resp <- bootstrap[[1]]
   if (inherits(count_resp, "error")) {
     cli::cli_abort("Count request failed: {conditionMessage(count_resp)}")
@@ -175,7 +185,8 @@ peg_data <- function(
     return(tibble::tibble())
   }
 
-  # parse page 0 data
+  # ── parse page 0 ─────────────────────────────────────────────────────────
+
   page0_resp <- bootstrap[[2]]
   if (inherits(page0_resp, "error")) {
     cli::cli_abort("First page request failed: {conditionMessage(page0_resp)}")
@@ -227,8 +238,6 @@ peg_data <- function(
   }
 
   # ── 6. Build requests for pages 1 .. n_pages-1 ──────────────────────────
-  # Page 0 is already done above. Remaining pages are 1-indexed offsets.
-  # Using lapply (faster than purrr::map for simple iterations).
 
   remaining_requests <- lapply(seq_len(n_pages - 1L), \(page_idx) {
     page_skip <- base_skip + page_idx * .PAGE_SIZE
@@ -251,33 +260,32 @@ peg_data <- function(
       httr2::req_timeout(seconds = 60L)
   })
 
-  # ── 7. Fire all remaining requests — let httr2/curl manage the queue ────
-  # Passing all requests at once with max_active is faster than manual
-  # batching: curl starts the next request the instant any slot frees,
-  # avoiding the convoy delay where a slow page holds up an entire batch.
+  # ── 7. Fire all remaining requests ──────────────────────────────────────
 
   responses <- httr2::req_perform_parallel(
     remaining_requests,
     max_active = max_connections,
     on_error = "continue",
-    progress = glue::glue("Fetching {n_pages - 1L} pages")
+    progress = sprintf(
+      "Fetching %d page%s",
+      n_pages - 1L,
+      if (n_pages - 1L == 1L) "" else "s"
+    )
   )
 
   # ── 8. Parse responses — preserve original page order ───────────────────
 
   pages <- vector("list", n_pages)
-  pages[[1L]] <- page0_data # slot in the already-parsed page 0
-  rows_done <- nrow(page0_data)
+  pages[[1L]] <- page0_data
 
   cli::cli_progress_bar(
     name = "Parsing pages",
     type = "iterator",
     total = n_pages - 1L,
     format = paste0(
-      "{cli::pb_spin} Parsing page {cli::pb_current}/{cli::pb_total} ",
-      "| Rows: {rows_done}/{rows_to_fetch} ",
-      "| {cli::pb_percent} ",
-      "| {cli::pb_elapsed} elapsed"
+      "{cli::pb_spin} Parsing page {cli::pb_current}/{cli::pb_total}",
+      " | {cli::pb_percent}",
+      " | {cli::pb_elapsed} elapsed"
     )
   )
 
@@ -294,8 +302,6 @@ peg_data <- function(
 
     handle_errors(resp)
     pages[[page_idx]] <- .parse_page(resp)
-    rows_done <- rows_done + nrow(pages[[page_idx]])
-
     cli::cli_progress_update()
   }
 
@@ -305,7 +311,6 @@ peg_data <- function(
 
   out <- dplyr::bind_rows(pages) |> tibble::as_tibble()
 
-  # Defensive trim — guards against server-side rounding surprises
   if (!is.null(top) && nrow(out) > top) {
     out <- out[seq_len(top), ]
   }
@@ -318,61 +323,18 @@ peg_data <- function(
 }
 
 
-# get_total_count() -------------------------------------------------------
-
-#' Fetch the total row count for a dataset via OData $count
-#'
-#' Sends a single lightweight request with `$count=true` to the OData endpoint.
-#' The server returns a JSON object with an `@odata.count` field rather than
-#' any actual row data, making this much cheaper than fetching a full page.
-#' Used by `peg_data()` during the bootstrap phase to calculate how many pages
-#' need to be requested.
-#'
-#' @param dataset_id A character string dataset ID e.g. `"d4mq-wa44"`.
-#' @return A single integer — the total number of rows in the dataset — or
-#'   `NA_integer_` if the server does not return an `@odata.count` field.
-#' @noRd
-get_total_count <- function(dataset_id) {
-  url <- build_url(dataset_id, params = list("count" = "true"))
-
-  response <- url |>
-    httr2::request() |>
-    httr2::req_headers("Accept" = "application/json") |>
-    # Disable httr2's default behaviour of throwing on 4xx/5xx so that
-    # handle_errors() can produce informative cli messages instead.
-    httr2::req_error(is_error = \(resp) FALSE) |>
-    httr2::req_perform() |>
-    handle_errors()
-
-  if (httr2::resp_body_raw(response) |> length() == 0) {
-    cli::cli_abort(
-      "Response body is empty getting row count for {.val {dataset_id}}."
-    )
-  }
-
-  result <- httr2::resp_body_json(response)
-  # Return NA if the field is absent rather than throwing, so the caller can
-  # decide how to handle a missing count (peg_data() treats NA as fatal).
-  result[["@odata.count"]] %||% NA_integer_
-}
-
-
 # build_filter() ----------------------------------------------------------
 
 #' Translate a filter argument into an OData $filter string
 #'
 #' Accepts two forms:
 #' - A **raw OData string** (e.g. `"total_assessed_value gt 500000"`) which is
-#'   returned as-is — useful when the caller already knows OData syntax.
+#'   returned as-is.
 #' - An **R expression** (e.g. `total_assessed_value > 500000`) which is
-#'   recursively translated to OData syntax.
-#'
-#' The expression form is captured with `rlang::enexpr()` in the calling
-#' function before being passed here, so `expr` arrives as a call object
-#' (or symbol for bare column names) rather than an evaluated value.
+#'   recursively translated to OData syntax by `.translate_expr()`.
 #'
 #' @param expr A character string, a call object, or a symbol.
-#' @return A single OData filter string, e.g. `"total_assessed_value gt 500000"`.
+#' @return A single OData filter string.
 #' @noRd
 build_filter <- function(expr) {
   if (is.null(expr)) {
@@ -385,12 +347,10 @@ build_filter <- function(expr) {
     )
   }
 
-  # Raw OData strings pass through unchanged.
   if (is.character(expr)) {
     return(expr)
   }
 
-  # R call/symbol objects are recursively translated to OData syntax.
   .translate_expr(expr)
 }
 
@@ -399,43 +359,27 @@ build_filter <- function(expr) {
 
 #' Recursively translate an R expression into an OData filter string
 #'
-#' Walks the abstract syntax tree (AST) of a captured R expression and maps
-#' each node to its OData equivalent:
-#'
-#' - **Symbols** (bare column names) become plain identifier strings.
-#' - **Literals** are serialised — character values are single-quoted,
-#'   logicals are lowercased (`true`/`false`), numerics use fixed notation.
-#' - **Unary `!`** becomes OData `not`.
-#' - **Binary comparison operators** (`==`, `!=`, `>`, `>=`, `<`, `<=`) map
-#'   to their OData keywords (`eq`, `ne`, `gt`, `ge`, `lt`, `le`).
-#' - **Logical connectives** (`&`, `&&`, `|`, `||`) map to `and`/`or` and are
-#'   wrapped in parentheses to make precedence explicit.
-#'
-#' Compound expressions are handled naturally through recursion: each side of
-#' a binary operator is translated independently, then joined.
+#' Walks the AST of a captured R expression and maps each node to its OData
+#' equivalent. Symbols become bare identifiers; literals are serialised with
+#' appropriate quoting; binary and unary operators are mapped to OData keywords.
 #'
 #' @param x A language object (symbol, call, or scalar literal).
 #' @return A single OData filter string fragment.
 #' @noRd
 .translate_expr <- function(x) {
-  # ── Leaf: symbol → bare column name ──────────────────────────────────────
   if (is.symbol(x)) {
     return(as.character(x))
   }
 
-  # ── Leaf: literal value → OData-serialised string ────────────────────────
   if (!is.call(x)) {
     val <- x
     if (is.character(val)) {
-      # OData string literals must be single-quoted.
       return(glue::glue("'{val}'"))
     }
     if (is.logical(val)) {
-      # OData boolean literals are lowercase: true / false.
       return(tolower(as.character(val)))
     }
     if (is.numeric(val)) {
-      # Avoid scientific notation (e.g. 1e+05) which OData does not accept.
       return(format(val, scientific = FALSE))
     }
     cli::cli_abort(
@@ -443,18 +387,14 @@ build_filter <- function(expr) {
     )
   }
 
-  # ── Internal node: operator call ─────────────────────────────────────────
-  # x[[1]] is the operator; x[[2]] is the LHS; x[[3]] (if present) is the RHS.
   op <- as.character(x[[1]])
 
   if (length(x) < 2) {
     cli::cli_abort("Malformed expression: missing operand for {.val {op}}.")
   }
 
-  # Recursively translate the left-hand side.
   lhs <- .translate_expr(x[[2]])
 
-  # ── Unary `!` → OData `not` ──────────────────────────────────────────────
   if (op == "!" && length(x) == 2) {
     return(glue::glue("not {lhs}"))
   }
@@ -465,12 +405,8 @@ build_filter <- function(expr) {
     )
   }
 
-  # Recursively translate the right-hand side.
   rhs <- .translate_expr(x[[3]])
 
-  # ── Binary operators → OData keywords ────────────────────────────────────
-  # Fall-through cases (&/&&, |/||) share a single glue expression via
-  # consecutive switch arms with no body.
   switch(
     op,
     "==" = glue::glue("{lhs} eq {rhs}"),
@@ -479,9 +415,9 @@ build_filter <- function(expr) {
     ">=" = glue::glue("{lhs} ge {rhs}"),
     "<" = glue::glue("{lhs} lt {rhs}"),
     "<=" = glue::glue("{lhs} le {rhs}"),
-    "&" = , # fall-through
+    "&" = ,
     "&&" = glue::glue("({lhs} and {rhs})"),
-    "|" = , # fall-through
+    "|" = ,
     "||" = glue::glue("({lhs} or {rhs})"),
     cli::cli_abort("Unsupported operator {.val {op}} in filter expression.")
   )
@@ -492,31 +428,22 @@ build_filter <- function(expr) {
 
 #' Parse a single OData page response into a data frame
 #'
-#' Decodes the JSON body of one page response, extracts the `value` array, and
-#' strips the `@odata.id` column that Socrata injects into every row. Called
-#' in two places inside `peg_data()`: once for the bootstrap page 0 response
-#' and once per page inside the parallel parse loop.
-#'
-#' `simplifyVector = TRUE` in [httr2::resp_body_json()] causes the `value`
-#' array to be coerced directly to a data frame when all rows share the same
-#' fields, avoiding a slow `purrr::map_dfr()` step.
+#' Decodes the JSON body, extracts the `value` array, and strips the
+#' `@odata.id` column Socrata injects into every row.
+#' `simplifyVector = TRUE` coerces the array directly to a data frame,
+#' avoiding a slow row-by-row iteration.
 #'
 #' @param resp An httr2 response object with a non-empty JSON body.
-#' @return A data frame of rows for this page, or `NULL` if the `value` field
-#'   is absent (e.g. a count-only response was passed by mistake).
+#' @return A data frame of rows for this page.
 #' @noRd
 .parse_page <- function(resp) {
   if (length(httr2::resp_body_raw(resp)) == 0L) {
     cli::cli_abort("A page response returned an empty body.")
   }
 
-  # simplifyVector coerces the "value" JSON array directly to a data frame —
-  # faster than iterating over a list of row objects.
   parsed <- httr2::resp_body_json(resp, simplifyVector = TRUE)
   data <- parsed[["value"]]
 
-  # Socrata adds @odata.id to every row as an internal navigation key.
-  # It carries no dataset content and would pollute the returned tibble.
   if (!is.null(data) && "@odata.id" %in% names(data)) {
     data[["@odata.id"]] <- NULL
   }

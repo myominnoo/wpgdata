@@ -36,9 +36,10 @@ e.g. \code{"total_assessed_value desc"}.}
 
 \item{max_connections}{A positive integer controlling how many HTTP
 requests are in-flight at once. When \code{NULL} (the default), the value is
-auto-detected as \code{2 * parallel::detectCores()}, capped at 10 and at the
-number of pages required. Supply an explicit value to override — lower if
-the server rate-limits, higher if you have headroom.}
+auto-detected as \code{2 * parallel::detectCores()}, capped at
+\code{.MAX_CONNECTIONS} (20) and at the number of pages required. Supply an
+explicit value to override — lower if the server rate-limits, higher if
+you have headroom.}
 }
 \value{
 A \code{\link[tibble:tibble]{tibble::tibble()}} with the requested rows in their original order.
