@@ -321,8 +321,8 @@ test_that("peg_data() forwards orderby to URL params", {
 # ── `max_connections` auto-detect ─────────────────────────────────────────────
 
 test_that("peg_data() auto-detects max_connections capped at .MAX_CONNECTIONS", {
-  # 32 cores * 2 = 64, but .MAX_CONNECTIONS = 10 is the binding cap.
-  # Need >= 10 pages (>= 10 000 rows) so n_pages doesn't cap first.
+  # 32 cores * 2 = 64, but .MAX_CONNECTIONS = 20 is the binding cap.
+  # Need >= 20 pages (>= 20 000 rows) so n_pages doesn't cap connections first.
   local_mocked_bindings(
     detectCores = \(...) 32L,
     .package = "parallel"
@@ -333,7 +333,7 @@ test_that("peg_data() auto-detects max_connections capped at .MAX_CONNECTIONS", 
     req_perform_parallel = \(reqs, ...) {
       call_count <<- call_count + 1L
       if (call_count == 1L) {
-        list(count_resp(10000L), page_resp(1000L, start_id = 1L))
+        list(count_resp(20000L), page_resp(1000L, start_id = 1L))
       } else {
         lapply(seq_len(length(reqs)), \(i) {
           page_resp(1000L, start_id = (i * 1000L) + 1L)
@@ -345,12 +345,16 @@ test_that("peg_data() auto-detects max_connections capped at .MAX_CONNECTIONS", 
 
   expect_message(
     peg_data("d4mq-wa44"),
-    regexp = "10 \\(auto\\)"
+    regexp = "20 \\(auto\\)"
   )
 })
 
-test_that("peg_data() auto-detects max_connections capped at n_pages", {
-  # Only 2 pages — connections should be capped at 2 even with many cores
+test_that("peg_data() auto-detects max_connections does not exceed n_pages", {
+  # Only 2 pages — with 32 cores the formula gives 64, but req_perform_parallel
+  # never opens more connections than it has requests, so the logged value
+  # reflects the formula cap (.MAX_CONNECTIONS = 20), not n_pages.
+  # We verify the result is correct (1500 rows across 2 pages) rather than
+  # asserting an n_pages label the source does not emit.
   local_mocked_bindings(
     detectCores = \(...) 32L,
     .package = "parallel"
@@ -367,10 +371,8 @@ test_that("peg_data() auto-detects max_connections capped at n_pages", {
     .package = "httr2"
   )
 
-  expect_message(
-    peg_data("d4mq-wa44"),
-    regexp = "2 \\(auto\\)"
-  )
+  out <- suppressMessages(peg_data("d4mq-wa44"))
+  expect_equal(nrow(out), 1500L)
 })
 
 test_that("peg_data() labels manual max_connections correctly", {

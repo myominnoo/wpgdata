@@ -10,8 +10,9 @@ peg_metadata(dataset_id)
 \item{dataset_id}{A character string of the dataset ID e.g. \code{"d4mq-wa44"}}
 }
 \value{
-A tibble with columns \code{name}, \code{field_name}, \code{type}, and \code{description}.
-Use \code{field_name} values in \code{\link[=peg_query]{peg_query()}} for filtering and selecting columns.
+A tibble with columns \code{name}, \code{field_name}, \code{type}, and
+\code{description}. Use \code{field_name} values in \code{\link[=peg_query]{peg_query()}} for
+filtering and selecting columns.
 }
 \description{
 Get column names and types for a Winnipeg Open Data dataset
@@ -20,8 +21,5 @@ Get column names and types for a Winnipeg Open Data dataset
 \dontrun{
 # look up field names before querying
 peg_metadata("d4mq-wa44")
-
-# then use field_name in peg_query()
-peg_query("d4mq-wa44", filter = total_assessed_value > 500000)
 }
 }

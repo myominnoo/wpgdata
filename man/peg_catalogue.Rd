@@ -4,76 +4,35 @@
 \alias{peg_catalogue}
 \title{List all datasets from the Winnipeg Open Data Portal}
 \usage{
-peg_catalogue(limit = NULL)
+peg_catalogue(limit = NULL, max_connections = NULL)
 }
 \arguments{
-\item{limit}{An integer specifying the maximum number of datasets to
-return. Set to \code{NULL} to fetch all available datasets.}
+\item{limit}{A positive integer — the maximum number of datasets to return.
+When \code{NULL} (the default) every available dataset is fetched.}
+
+\item{max_connections}{A positive integer controlling how many HTTP requests
+are in-flight at once. When \code{NULL} (the default), the value is
+auto-detected as \code{2 * parallel::detectCores()}, capped at
+\code{.MAX_CONNECTIONS} (20) and at the number of requests needed. Supply
+an explicit value to override — lower if the portal rate-limits, higher
+if you have headroom.}
 }
 \value{
-A tibble with one row per dataset containing:
-\describe{
-\item{id}{Dataset ID — use this in \code{\link[=peg_get]{peg_get()}},
-\code{\link[=peg_query]{peg_query()}}, \code{\link[=peg_all]{peg_all()}},
-\code{\link[=peg_metadata]{peg_metadata()}}, and \code{\link[=peg_info]{peg_info()}}}
-\item{name}{Dataset name}
-\item{description}{Dataset description}
-\item{category}{Dataset category, defaults to \code{"Uncategorized"} if missing}
-\item{license_id}{License identifier (e.g. \code{"OGL_CANADA"})}
-\item{created_at}{Date the dataset was first created}
-\item{rows_updated_at}{Date the data was last updated. Results are
-sorted descending by this field}
-\item{view_last_modified}{Date the view definition was last modified}
-\item{publication_date}{Date the dataset was published}
-\item{index_updated_at}{Date the search index was last updated}
-\item{row_count}{Number of rows, sourced from cached column statistics}
-\item{col_count}{Number of columns}
-\item{download_count}{Total number of downloads}
-\item{view_count}{Total number of page views}
-\item{group}{Departmental group responsible for the dataset}
-\item{department}{City department responsible for the dataset}
-\item{update_frequency}{How often the dataset is refreshed (e.g. \code{"Daily"})}
-\item{quality_rank}{Data quality rank assigned by the portal (e.g. \code{"Gold"})}
-\item{license}{Full license name (e.g. \code{"Canada Open Government Licence"})}
-\item{license_link}{URL to the full license terms}
-\item{tags}{List-column of keyword tags associated with the dataset}
-\item{url}{Direct URL to the dataset on data.winnipeg.ca}
-}
+A tibble with one row per dataset, arranged by most recently updated.
 }
 \description{
-Retrieves a catalogue of all publicly available datasets from the
-City of Winnipeg Open Data Portal (data.winnipeg.ca) using the
-Socrata Discovery API. Metadata is fetched in parallel via the
-\verb{/api/views} endpoint for each dataset.
+Retrieves a catalogue of all publicly available datasets from
+data.winnipeg.ca using the Socrata Discovery API. Both catalogue pages and
+per-dataset metadata are fetched in parallel for maximum throughput.
 }
-\examples{
-\dontrun{
-# list all available datasets
-peg_catalogue()
-
-# find datasets by category
-library(dplyr)
-peg_catalogue() |>
-  dplyr::filter(category == "Transportation")
-
-# search by name
-peg_catalogue() |>
-  dplyr::filter(grepl("assessment", name, ignore.case = TRUE))
-
-# count datasets by category
-peg_catalogue() |>
-  dplyr::count(category, sort = TRUE)
-
-# find recently updated datasets
-peg_catalogue() |>
-  dplyr::filter(rows_updated_at >= Sys.Date() - 30)
-
-# find the largest datasets by row count
-peg_catalogue() |>
-  dplyr::arrange(dplyr::desc(row_count))
-
-# filter by department
-peg_catalogue() |>
-  dplyr::filter(department == "Customer Service & Communications")
+\details{
+How it works:
+\enumerate{
+\item Fires the catalogue count request and the first catalogue page
+\strong{simultaneously} to save one round trip.
+\item Pre-computes all remaining page URLs from known offsets and fetches them
+in parallel (no sequential \code{nextLink} chaining).
+\item Extracts dataset IDs from all pages, then fires all metadata requests
+in a single parallel batch via the \verb{/api/views} endpoint.
 }
 }
