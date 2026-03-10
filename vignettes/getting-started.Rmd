@@ -6,6 +6,7 @@ vignette: >
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse  = TRUE,
@@ -18,10 +19,17 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-`wpgdata` provides a simple R interface to query and download datasets
-from the [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
-using the OData V4 API. This vignette walks through the core functions
-using the Assessment Parcels dataset (`d4mq-wa44`) as a working example.
+`wpgdata` provides a tidy R interface to the
+[City of Winnipeg Open Data Portal](https://data.winnipeg.ca).
+Discover available datasets, inspect their schemas, and download records
+with automatic parallel pagination — all via the Socrata OData V4 and
+Discovery APIs.
+
+This vignette walks through the four core functions using the Assessment
+Parcels dataset (`d4mq-wa44`) as the primary working example, with
+additional examples using the 311 Service Requests dataset (`u7f6-5326`)
+to demonstrate date filtering on large datasets.
+
 ```{r library}
 library(wpgdata)
 library(dplyr)
@@ -31,145 +39,155 @@ library(dplyr)
 
 ## Workflow overview
 
-The typical `wpgdata` workflow follows five steps:
+The typical `wpgdata` workflow follows four steps:
+
+```
+peg_catalogue()   →   peg_info()      →   peg_metadata()   →   peg_data()
+(find datasets)       (dataset info)      (column schema)      (fetch rows)
+```
 
 | Function | Purpose |
 |---|---|
 | `peg_catalogue()` | Browse all available datasets and find IDs |
 | `peg_info()` | Explore a specific dataset |
 | `peg_metadata()` | Find field names before querying |
-| `peg_query()` | Filter, select, and sort |
-| `peg_all()` | Download all rows |
-```
-peg_catalogue()   →   peg_info()   →   peg_metadata()   →   peg_query()   →   peg_all()
-(find datasets)       (explore)        (find fields)        (filter)          (download all)
-```
+| `peg_data()` | Filter, select, sort, and download rows |
 
 ---
 
 ## Step 1 — Find datasets with `peg_catalogue()`
 
-Before working with any dataset, use `peg_catalogue()` to browse all
-available datasets on the portal. This is the best starting point when
-you don't yet know a dataset ID:
+`peg_catalogue()` retrieves every published dataset from the portal.
+Both catalogue pages and per-dataset metadata are fetched in parallel,
+so the full catalogue arrives quickly regardless of size.
+
 ```{r peg_catalogue}
 catalogue <- peg_catalogue()
 catalogue
 ```
 
 Count datasets by category to get an overview of what's available:
+
 ```{r peg_catalogue_count}
 catalogue |>
-  dplyr::count(category, sort = TRUE)
+  count(category, sort = TRUE)
 ```
 
-Search by name to find a specific dataset and retrieve its ID:
+Search by name to find a dataset and retrieve its ID:
+
 ```{r peg_catalogue_search}
 catalogue |>
-  dplyr::filter(grepl("assessment", name, ignore.case = TRUE)) |>
-  dplyr::select(name, id, rows_updated_at)
+  filter(grepl("assessment", name, ignore.case = TRUE)) |>
+  select(name, id, rows_updated_at)
 ```
 
 Use the `id` value in any other `peg_*` function:
+
 ```{r peg_catalogue_id}
 dataset_id <- catalogue |>
-  dplyr::filter(name == "Assessment Parcels") |>
-  dplyr::pull(id)
+  filter(name == "Assessment Parcels") |>
+  pull(id)
 
 dataset_id
+```
+
+Use `limit` to cap results while exploring:
+
+```{r peg_catalogue_limit}
+peg_catalogue(limit = 10)
 ```
 
 ---
 
 ## Step 2 — Explore a dataset with `peg_info()`
 
-Use `peg_info()` to understand what a dataset contains — its name,
-description, category, update frequency, and row count:
+`peg_info()` returns high-level metadata for a single dataset — name,
+description, category, update frequency, row count, and license:
+
 ```{r peg_info}
 peg_info("d4mq-wa44")
 ```
 
-This tells us the dataset was last updated, how many times it has been
-downloaded, and what license it is published under — all useful before
-committing to a large download.
+This is useful before committing to a large download: it tells you when
+the data was last updated, how many rows to expect, and what license it
+is published under.
 
 ---
 
 ## Step 3 — Find field names with `peg_metadata()`
 
 OData queries require exact field names. Use `peg_metadata()` to look
-up the available fields and their types before writing any query:
+up available fields and their types before writing any query:
+
 ```{r peg_metadata}
 meta <- peg_metadata("d4mq-wa44")
 meta
 ```
 
-The `field_name` column contains the names to use in `peg_query()`.
-The `type` column tells you whether a field is text, number, or
-another type — important for writing correct filter expressions.
+The `field_name` column contains the names to use in `peg_data()`.
+The `type` column tells you whether a field is text, number, floating
+timestamp, or another type — important for writing correct filter
+expressions.
 
-For example, to find numeric fields only:
+Find numeric fields only:
+
 ```{r meta_numeric}
 meta |>
-  dplyr::filter(type == "number")
+  filter(type == "number")
+```
+
+Find timestamp fields (relevant for date filtering):
+
+```{r meta_timestamp}
+meta |>
+  filter(type == "calendar_date")
 ```
 
 ---
 
-## Step 4 — Fetch a quick preview with `peg_get()`
+## Step 4 — Fetch data with `peg_data()`
 
-`peg_get()` fetches the first page of a dataset (up to the server's
-default page size). It is useful for a quick look at the data
-structure before writing more targeted queries:
-```{r peg_get}
-df <- suppressWarnings(peg_get("d4mq-wa44"))
-df
+`peg_data()` is the single function for fetching rows. It supports
+server-side filtering, column selection, sorting, and offset pagination.
+All pages are fetched in parallel automatically — no manual pagination
+needed.
+
+### Quick preview
+
+Fetch a small sample to inspect structure before a larger query:
+
+```{r peg_data_preview}
+peg_data("d4mq-wa44", top = 5)
 ```
-
-Check column names and types:
-```{r peg_get_glimpse}
-dplyr::glimpse(df)
-```
-
----
-
-## Step 5 — Query with `peg_query()`
-
-`peg_query()` supports five OData parameters:
-
-| Argument | OData parameter | Purpose |
-|---|---|---|
-| `filter` | `$filter` | filter rows |
-| `select` | `$select` | choose columns |
-| `top` | `$top` | limit rows returned |
-| `skip` | `$skip` | skip rows (offset) |
-| `orderby` | `$orderby` | sort results |
 
 ### Filtering rows
 
-Pass R expressions directly — `wpgdata` translates them to OData:
+Pass R expressions directly — `wpgdata` translates them to OData syntax:
+
 ```{r filter_r}
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44",
   filter = total_assessed_value > 1000000,
   top    = 10
 )
 ```
 
 Or use raw OData strings if you prefer:
+
 ```{r filter_odata}
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44",
   filter = "total_assessed_value gt 1000000",
   top    = 10
 )
 ```
 
-Both approaches return identical results.
+Both approaches produce identical results.
 
 ### Compound filters
 
 Combine conditions with `&` (AND) and `|` (OR):
+
 ```{r filter_compound}
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44",
   filter = total_assessed_value > 1000000 & building_type == "TWO STOREY",
   top    = 10
 )
@@ -177,9 +195,11 @@ peg_query("d4mq-wa44",
 
 ### Selecting columns
 
-Use `select` to return only the columns you need:
+Use `select` to return only the columns you need — reduces transfer size
+significantly on wide datasets:
+
 ```{r select}
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44",
   select = c("roll_number", "full_address", "total_assessed_value",
              "building_type", "year_built"),
   top    = 10
@@ -189,17 +209,19 @@ peg_query("d4mq-wa44",
 ### Sorting results
 
 Use `orderby` to sort ascending or descending:
+
 ```{r orderby}
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44",
   select  = c("roll_number", "full_address", "total_assessed_value"),
   orderby = "total_assessed_value desc",
   top     = 10
 )
 ```
 
-### Combining everything
+### Combining filter, select, and orderby
+
 ```{r combined}
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44",
   filter  = total_assessed_value > 1000000 & year_built > 2000,
   select  = c("roll_number", "full_address", "total_assessed_value",
               "building_type", "year_built"),
@@ -210,32 +232,117 @@ peg_query("d4mq-wa44",
 
 ### Pagination with `skip`
 
-Use `skip` and `top` together to paginate manually:
-```{r skip}
-# rows 1-5
-page_1 <- peg_query("d4mq-wa44", top = 5, skip = 0)
+Use `skip` and `top` together to retrieve a specific slice of rows:
 
-# rows 6-10
-page_2 <- peg_query("d4mq-wa44", top = 5, skip = 5)
+```{r skip}
+# rows 1–5
+page_1 <- peg_data("d4mq-wa44", top = 5, skip = 0)
+
+# rows 6–10
+page_2 <- peg_data("d4mq-wa44", top = 5, skip = 5)
+```
+
+### Fetching all rows
+
+Omit `top` to fetch every matching row across all pages:
+
+```{r peg_data_all, eval = FALSE}
+# fetches all rows — may take several minutes for large datasets
+peg_data("d4mq-wa44")
 ```
 
 ---
 
-## Step 6 — Download all rows with `peg_all()`
+## Date filtering
 
-`peg_all()` automatically paginates through all pages and returns a
-single tibble. It shows a progress bar with row counts and percentage:
-```{r peg_all_cap}
-# fetch up to 3 pages (safety cap)
-peg_all("d4mq-wa44", max_pages = 3)
+Datasets with timestamp columns (type `calendar_date` or
+`floating_timestamp` in `peg_metadata()`) support date range filters
+via raw OData strings. Socrata floating timestamps use ISO 8601 format
+with milliseconds: `YYYY-MM-DDTHH:MM:SS.mmm`.
+
+Build cutoff strings with a small helper to avoid repeating the format:
+
+```{r ts_helper}
+# helper — format a Date as a Socrata floating timestamp string
+ts <- function(date) format(date, "%Y-%m-%dT00:00:00.000")
 ```
 
-For large datasets, the default `max_pages = 10` prevents accidental
-downloads. Set `max_pages = Inf` to fetch everything:
-```{r peg_all_inf, eval = FALSE}
-# fetch all rows - may take several minutes for large datasets
-peg_all("d4mq-wa44", max_pages = Inf)
+The examples below use the 311 Service Requests dataset (`u7f6-5326`),
+which has 18+ million rows and is updated continuously — date filters
+are essential to avoid downloading the entire dataset.
+
+### Records closed in the last 4 days
+
+```{r date_last4}
+filter_str <- paste0("closed_date ge '", ts(Sys.Date() - 4), "'")
+
+peg_data(
+  "u7f6-5326",
+  filter = filter_str,
+  select = c("case_id", "channel_type", "subject", "reason",
+             "type", "open_date", "closed_date", "case_status",
+             "neighbourhood", "ward"),
+  top    = 100L
+)
 ```
+
+### Records closed within a specific date range
+
+```{r date_range}
+filter_str <- paste0(
+  "closed_date ge '", ts(as.Date("2026-03-01")), "'",
+  " and ",
+  "closed_date lt '", ts(as.Date("2026-03-07")), "'"
+)
+
+peg_data(
+  "u7f6-5326",
+  filter = filter_str,
+  select = c("case_id", "subject", "open_date", "closed_date", "case_status"),
+  top    = 100L
+)
+```
+
+### Open cases from the last 7 days
+
+```{r date_open}
+filter_str <- paste0(
+  "open_date ge '", ts(Sys.Date() - 7), "'",
+  " and ",
+  "case_status eq 'Open'"
+)
+
+peg_data(
+  "u7f6-5326",
+  filter  = filter_str,
+  select  = c("case_id", "subject", "reason", "open_date",
+              "case_status", "neighbourhood", "ward"),
+  top     = 100L
+)
+```
+
+### Cases closed yesterday, sorted by most recently closed
+
+```{r date_yesterday}
+filter_str <- paste0(
+  "closed_date ge '", ts(Sys.Date() - 1), "'",
+  " and ",
+  "closed_date lt '", ts(Sys.Date()), "'"
+)
+
+peg_data(
+  "u7f6-5326",
+  filter  = filter_str,
+  select  = c("case_id", "subject", "channel_type",
+              "open_date", "closed_date", "neighbourhood"),
+  orderby = "closed_date desc",
+  top     = 100L
+)
+```
+
+> **Note:** The `top` argument is included in all date filter examples
+> to keep live API calls lightweight during development. Remove it to
+> retrieve the full result set.
 
 ---
 
@@ -253,24 +360,26 @@ peg_all("d4mq-wa44", max_pages = Inf)
 | `x == 1 \| y == 2` | `(x eq 1 or y eq 2)` | OR |
 | `!x` | `not x` | NOT |
 
+> **Tip:** R expression syntax works for numeric and string comparisons.
+> For date comparisons, use raw OData strings as shown in the date
+> filtering section above.
+
 ---
 
 ## Finding dataset IDs
 
-The easiest way is to use `peg_catalogue()` directly in R:
+The easiest way is to search directly in R:
+
 ```{r find_id, eval = FALSE}
 peg_catalogue() |>
-  dplyr::filter(grepl("your search term", name, ignore.case = TRUE)) |>
-  dplyr::select(name, id, category)
+  filter(grepl("your search term", name, ignore.case = TRUE)) |>
+  select(name, id, category)
 ```
 
-Alternatively, find IDs on the
-[City of Winnipeg Open Data Portal](https://data.winnipeg.ca):
+Alternatively, browse the
+[City of Winnipeg Open Data Portal](https://data.winnipeg.ca), open any
+dataset, click **API → OData V4**, and copy the last segment of the URL:
 
-1. Browse to [data.winnipeg.ca](https://data.winnipeg.ca)
-2. Open any dataset
-3. Click **API** → **OData V4**
-4. Copy the last segment of the URL:
 ```
 https://data.winnipeg.ca/api/odata/v4/d4mq-wa44
                                       ^^^^^^^^^^

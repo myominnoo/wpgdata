@@ -1,13 +1,15 @@
 Package: wpgdata
-Title: Access the Winnipeg Open Data Portal via OData V4
+Title: Access the Winnipeg Open Data Portal
 Version: 0.3.0
-Authors@R: 
+Authors@R:
     person("Myo Minn", "Oo", , "dr.myominnoo@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-4089-016X"))
-Description: Query and download datasets from the City of Winnipeg Open Data 
-    Portal (data.winnipeg.ca) using the OData V4 API. Provides a simple 
-    interface to search, filter, and retrieve data with automatic pagination 
-    support. Based on the Socrata OData V4 endpoint specification.
+Description: A tidy interface to the City of Winnipeg Open Data Portal
+    (<https://data.winnipeg.ca>). Discover available datasets, inspect
+    column schemas, and download records with automatic multi-page
+    pagination — all via the Socrata OData V4 and Discovery APIs.
+    Supports server-side filtering, column selection, and row ordering
+    to minimise data transfer.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -24,13 +26,13 @@ Imports:
     tibble
 Suggests:
     dplyr,
+    jsonlite,
     httptest2,
     knitr,
     rmarkdown,
-    jsonlite,
+    spelling,
     testthat (>= 3.0.0),
-    xml2,
-    spelling
+    xml2
 URL: https://myominnoo.github.io/wpgdata, https://github.com/myominnoo/wpgdata
 BugReports: https://github.com/myominnoo/wpgdata/issues
 Config/testthat/edition: 3

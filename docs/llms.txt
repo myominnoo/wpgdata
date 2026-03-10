@@ -1,8 +1,9 @@
 # wpgdata
 
-`wpgdata` provides a simple R interface to query and download datasets
-from the [City of Winnipeg Open Data Portal](https://data.winnipeg.ca)
-using the OData V4 API.
+`wpgdata` provides a tidy R interface to the [City of Winnipeg Open Data
+Portal](https://data.winnipeg.ca). Discover available datasets, inspect
+their schemas, and download records with automatic parallel pagination —
+all via the Socrata OData V4 and Discovery APIs.
 
 ## Installation
 
@@ -19,39 +20,41 @@ Or install the development version from GitHub:
 pak::pak("myominnoo/wpgdata")
 ```
 
-## Usage
+## Workflow
 
 ``` r
 library(wpgdata)
 ```
 
-The typical workflow follows these steps:
+The package exposes four functions that follow a natural progression
+from discovery to download:
 
 ``` R
-peg_catalogue()   →   peg_info()   →   peg_metadata()   →   peg_query()   →   peg_all()
-(find datasets)       (explore)        (find fields)        (filter)          (download all)
+peg_catalogue()   →   peg_info()      →   peg_metadata()   →   peg_data()
+(find datasets)       (dataset info)      (column schema)      (fetch rows)
 ```
 
-### `peg_catalogue()` — find available datasets
+### `peg_catalogue()` — discover available datasets
 
-List all datasets on the Winnipeg Open Data Portal with their IDs,
-categories, and last updated dates:
+List every dataset published on the Winnipeg Open Data Portal. Both
+catalogue pages and per-dataset metadata are fetched in parallel, so the
+full catalogue arrives in seconds rather than minutes.
 
 ``` r
 peg_catalogue()
 #> # A tibble: 216 × 22
 #>    id        name     description category license_id created_at rows_updated_at
 #>    <chr>     <chr>    <chr>       <chr>    <chr>      <date>     <date>         
-#>  1 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-09     
-#>  2 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-09     
-#>  3 tix9-r5tc Plow Zo… "Scheduled… City Pl… <NA>       2016-10-18 2026-03-09     
-#>  4 tgrf-v2zc River W… "Record of… Water a… OGL_CANADA 2018-03-15 2026-03-09     
-#>  5 f9mn-vti8 Council… "On Septem… Council… OGL_CANADA 2019-10-01 2026-03-09     
-#>  6 u7f6-5326 311 Req… "This data… Contact… OGL_CANADA 2019-08-26 2026-03-09     
-#>  7 fxq5-ign2 Accessi… "This data… Streets  OGL_CANADA 2023-01-18 2026-03-09     
-#>  8 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-08     
-#>  9 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-08     
-#> 10 gnxp-9hpt Public … "Public No… Develop… <NA>       2016-08-08 2026-03-08     
+#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-10     
+#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-10     
+#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-10     
+#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-10     
+#>  5 gnxp-9hpt Public … "Public No… Develop… <NA>       2016-08-08 2026-03-10     
+#>  6 tix9-r5tc Plow Zo… "Scheduled… City Pl… <NA>       2016-10-18 2026-03-10     
+#>  7 du7c-8488 Daily A… "The data … Insect … <NA>       2016-05-04 2026-03-10     
+#>  8 pfbi-rm6v FIPPA R… "The Freed… Organiz… OGL_CANADA 2019-09-10 2026-03-10     
+#>  9 tgrf-v2zc River W… "Record of… Water a… OGL_CANADA 2018-03-15 2026-03-10     
+#> 10 qe3f-4r3j Active … "The City … Neighbo… OGL_CANADA 2023-06-30 2026-03-10     
 #> # ℹ 206 more rows
 #> # ℹ 15 more variables: view_last_modified <date>, publication_date <date>,
 #> #   index_updated_at <date>, row_count <int>, col_count <int>,
@@ -60,7 +63,7 @@ peg_catalogue()
 #> #   license_link <chr>, tags <list>, url <chr>
 ```
 
-Filter by category or search by name to find a dataset ID:
+Use `dplyr` to explore the catalogue:
 
 ``` r
 library(dplyr)
@@ -83,35 +86,59 @@ peg_catalogue() |>
 #> 10 Contact Centre - 311                                       7
 #> # ℹ 16 more rows
 
-# search by name
-peg_catalogue(10) |>
+# find a dataset by name
+peg_catalogue() |>
   filter(grepl("assessment", name, ignore.case = TRUE)) |>
   select(name, id, rows_updated_at)
 #> # A tibble: 1 × 3
 #>   name               id        rows_updated_at
 #>   <chr>              <chr>     <date>         
-#> 1 Assessment Parcels d4mq-wa44 2026-03-08
+#> 1 Assessment Parcels d4mq-wa44 2026-03-10
+```
+
+Use `limit` to cap the number of datasets returned when exploring:
+
+``` r
+peg_catalogue(limit = 10)
+#> # A tibble: 10 × 22
+#>    id        name     description category license_id created_at rows_updated_at
+#>    <chr>     <chr>    <chr>       <chr>    <chr>      <date>     <date>         
+#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-10     
+#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-10     
+#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-10     
+#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-10     
+#>  5 gnxp-9hpt Public … "Public No… Develop… <NA>       2016-08-08 2026-03-10     
+#>  6 6rcy-9uik Recycli… "Collectio… Water a… OGL_CANADA 2017-09-08 2026-03-09     
+#>  7 hfwk-jp4h Tree In… "Detailed … Parks    OGL_CANADA 2017-08-22 2026-03-09     
+#>  8 p5sy-gt7y Aggrega… "Aggregate… Develop… <NA>       2016-12-21 2026-03-09     
+#>  9 it4w-cpf4 Detaile… "City of W… Develop… <NA>       2016-04-18 2026-03-01     
+#> 10 4her-3th5 311 Ser… "This data… Contact… <NA>       2015-07-22 2025-04-15     
+#> # ℹ 15 more variables: view_last_modified <date>, publication_date <date>,
+#> #   index_updated_at <date>, row_count <int>, col_count <int>,
+#> #   download_count <int>, view_count <int>, group <chr>, department <chr>,
+#> #   update_frequency <chr>, quality_rank <chr>, license <chr>,
+#> #   license_link <chr>, tags <list>, url <chr>
 ```
 
 ### `peg_info()` — dataset-level information
 
-Get high-level information about a dataset before downloading it:
+Get high-level metadata for a single dataset before downloading it:
 
 ``` r
 peg_info("d4mq-wa44")
 #> # A tibble: 1 × 11
 #>   name        description category created_at rows_updated_at view_last_modified
 #>   <chr>       <chr>       <chr>    <date>     <date>          <date>            
-#> 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-08      2026-03-08        
+#> 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-10      2026-03-10        
 #> # ℹ 5 more variables: view_count <int>, download_count <int>, tags <list>,
 #> #   license <chr>, provenance <chr>
 ```
 
-### `peg_metadata()` — column names and types
+### `peg_metadata()` — column schema
 
-Look up field names and types before querying. Always use `field_name`
-values in
-[`peg_query()`](https://myominnoo.github.io/wpgdata/reference/peg_query.md):
+Inspect column names and types. Use the `field_name` column in
+[`peg_data()`](https://myominnoo.github.io/wpgdata/reference/peg_data.md)
+when filtering or selecting specific columns:
 
 ``` r
 peg_metadata("d4mq-wa44")
@@ -131,26 +158,29 @@ peg_metadata("d4mq-wa44")
 #> # ℹ 61 more rows
 ```
 
-### `peg_get()` — fetch the first page
+### `peg_data()` — fetch rows
 
-Fetch the first page of a dataset. Warns if more rows are available:
+Download rows from a dataset. All pages are fetched in parallel
+automatically — no manual pagination needed.
+
+**Fetch all rows:**
 
 ``` r
-suppressWarnings(peg_get("d4mq-wa44"))
-#> # A tibble: 1,000 × 72
+peg_data("d4mq-wa44")
+#> # A tibble: 245,136 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
-#>    <chr>    <chr>               <int> <chr>       <lgl>         <lgl>           
-#>  1 row-iai… 01000001000          1636 <NA>        NA            NA              
-#>  2 row-u7e… 01000005500          1584 <NA>        NA            NA              
-#>  3 row-rxq… 01000008000          1574 <NA>        NA            NA              
-#>  4 row-7nj… 01000008200          1550 <NA>        NA            NA              
-#>  5 row-pte… 01000008400          1538 <NA>        NA            NA              
-#>  6 row-ehq… 01000008500          1536 <NA>        NA            NA              
-#>  7 row-iyr… 01000013200          1520 <NA>        NA            NA              
-#>  8 row-78v… 01000013300          1510 <NA>        NA            NA              
-#>  9 row-cv3… 01000013600          1500 <NA>        NA            NA              
-#> 10 row-trz… 01000013700          1490 <NA>        NA            NA              
-#> # ℹ 990 more rows
+#>    <chr>    <chr>               <int> <chr>       <chr>         <chr>           
+#>  1 row-ab5… 01000001000          1636 <NA>        <NA>          <NA>            
+#>  2 row-xxt… 01000005500          1584 <NA>        <NA>          <NA>            
+#>  3 row-cmg… 01000008000          1574 <NA>        <NA>          <NA>            
+#>  4 row-v9i… 01000008200          1550 <NA>        <NA>          <NA>            
+#>  5 row-t6s… 01000008400          1538 <NA>        <NA>          <NA>            
+#>  6 row-74m… 01000008500          1536 <NA>        <NA>          <NA>            
+#>  7 row-pq8… 01000013200          1520 <NA>        <NA>          <NA>            
+#>  8 row-d69… 01000013300          1510 <NA>        <NA>          <NA>            
+#>  9 row-6jq… 01000013600          1500 <NA>        <NA>          <NA>            
+#> 10 row-937… 01000013700          1490 <NA>        <NA>          <NA>            
+#> # ℹ 245,126 more rows
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -159,27 +189,42 @@ suppressWarnings(peg_get("d4mq-wa44"))
 #> #   detached_garage <chr>, pool <chr>, number_floors_condo <int>, …
 ```
 
-### `peg_query()` — filter, select, sort
-
-Query a dataset using R expressions or raw OData strings:
+**Limit rows with `top`:**
 
 ``` r
-# R expression filter
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44", top = 5)
+#> # A tibble: 5 × 72
+#>   `__id`    roll_number street_number unit_number street_suffix street_direction
+#>   <chr>     <chr>               <int> <chr>       <lgl>         <lgl>           
+#> 1 row-ab5p… 01000001000          1636 <NA>        NA            NA              
+#> 2 row-xxte… 01000005500          1584 <NA>        NA            NA              
+#> 3 row-cmgt… 01000008000          1574 <NA>        NA            NA              
+#> 4 row-v9ih… 01000008200          1550 <NA>        NA            NA              
+#> 5 row-t6sd… 01000008400          1538 <NA>        NA            NA              
+#> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
+#> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
+#> #   total_living_area <int>, building_type <chr>, basement <chr>,
+#> #   basement_finish <chr>, year_built <int>, rooms <int>,
+#> #   air_conditioning <chr>, fire_place <chr>, attached_garage <chr>,
+#> #   detached_garage <chr>, pool <chr>, number_floors_condo <int>,
+#> #   property_use_code <chr>, assessed_land_area <int>, …
+```
+
+**Filter with R expressions:**
+
+``` r
+peg_data("d4mq-wa44",
   filter = total_assessed_value > 1000000,
   top    = 5
 )
-#> Warning: ! Not all rows returned. The dataset is paginated.
-#> ℹ Rows retrieved: 5
-#> ℹ Use `peg_all()` to retrieve all rows.
 #> # A tibble: 5 × 72
 #>   `__id`    roll_number street_number unit_number street_suffix street_direction
-#>   <chr>     <chr>               <int> <lgl>       <lgl>         <lgl>           
-#> 1 row-u7eu… 01000005500          1584 NA          NA            NA              
-#> 2 row-iyrb… 01000013200          1520 NA          NA            NA              
-#> 3 row-ygb8… 01000014500          1450 NA          NA            NA              
-#> 4 row-bp9n… 01000045500          1290 NA          NA            NA              
-#> 5 row-nskr… 01000064000          1820 NA          NA            NA              
+#>   <chr>     <chr>               <int> <chr>       <chr>         <chr>           
+#> 1 row-xxte… 01000005500          1584 <NA>        <NA>          <NA>            
+#> 2 row-pq84… 01000013200          1520 <NA>        <NA>          <NA>            
+#> 3 row-pbex… 01000014500          1450 <NA>        <NA>          <NA>            
+#> 4 row-jnpa… 01000045500          1290 <NA>        <NA>          <NA>            
+#> 5 row-xmck… 01000064000          1820 <NA>        <NA>          <NA>            
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -189,15 +234,13 @@ peg_query("d4mq-wa44",
 #> #   property_use_code <chr>, assessed_land_area <int>, …
 ```
 
+**Select specific columns:**
+
 ``` r
-# select specific columns
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44",
   select = c("roll_number", "full_address", "total_assessed_value"),
   top    = 5
 )
-#> Warning: ! Not all rows returned. The dataset is paginated.
-#> ℹ Rows retrieved: 5
-#> ℹ Use `peg_all()` to retrieve all rows.
 #> # A tibble: 5 × 3
 #>   roll_number full_address       total_assessed_value
 #>   <chr>       <chr>                             <int>
@@ -208,16 +251,14 @@ peg_query("d4mq-wa44",
 #> 5 01000008400 1538 MCCREARY ROAD               577000
 ```
 
+**Sort results:**
+
 ``` r
-# sort results
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44",
   select  = c("roll_number", "full_address", "total_assessed_value"),
   orderby = "total_assessed_value desc",
   top     = 5
 )
-#> Warning: ! Not all rows returned. The dataset is paginated.
-#> ℹ Rows retrieved: 5
-#> ℹ Use `peg_all()` to retrieve all rows.
 #> # A tibble: 5 × 3
 #>   roll_number full_address        total_assessed_value
 #>   <chr>       <chr>                              <int>
@@ -228,17 +269,15 @@ peg_query("d4mq-wa44",
 #> 5 12092819100 10 KENNEDY STREET              262044000
 ```
 
+**Combine filter, select, and orderby:**
+
 ``` r
-# combine filter + select + orderby
-peg_query("d4mq-wa44",
+peg_data("d4mq-wa44",
   filter  = total_assessed_value > 1000000,
   select  = c("roll_number", "full_address", "total_assessed_value"),
   orderby = "total_assessed_value desc",
   top     = 5
 )
-#> Warning: ! Not all rows returned. The dataset is paginated.
-#> ℹ Rows retrieved: 5
-#> ℹ Use `peg_all()` to retrieve all rows.
 #> # A tibble: 5 × 3
 #>   roll_number full_address        total_assessed_value
 #>   <chr>       <chr>                              <int>
@@ -249,38 +288,52 @@ peg_query("d4mq-wa44",
 #> 5 12092819100 10 KENNEDY STREET              262044000
 ```
 
-### `peg_all()` — fetch all rows with pagination
-
-Retrieve all rows across multiple pages with a progress bar:
+**Skip rows** (useful for resuming or sampling):
 
 ``` r
-peg_all("d4mq-wa44", max_pages = 3)
-#> Warning: ! Stopped after 3 pages.
-#> ℹ Rows retrieved : 41000 of 245130
-#> ℹ Use `max_pages = Inf` to fetch all.
-#> # A tibble: 41,000 × 72
-#>    `__id`   roll_number street_number unit_number street_suffix street_direction
-#>    <chr>    <chr>               <int> <chr>       <chr>         <chr>           
-#>  1 row-iai… 01000001000          1636 <NA>        <NA>          <NA>            
-#>  2 row-u7e… 01000005500          1584 <NA>        <NA>          <NA>            
-#>  3 row-rxq… 01000008000          1574 <NA>        <NA>          <NA>            
-#>  4 row-7nj… 01000008200          1550 <NA>        <NA>          <NA>            
-#>  5 row-pte… 01000008400          1538 <NA>        <NA>          <NA>            
-#>  6 row-ehq… 01000008500          1536 <NA>        <NA>          <NA>            
-#>  7 row-iyr… 01000013200          1520 <NA>        <NA>          <NA>            
-#>  8 row-78v… 01000013300          1510 <NA>        <NA>          <NA>            
-#>  9 row-cv3… 01000013600          1500 <NA>        <NA>          <NA>            
-#> 10 row-trz… 01000013700          1490 <NA>        <NA>          <NA>            
-#> # ℹ 40,990 more rows
+peg_data("d4mq-wa44", skip = 1000, top = 5)
+#> # A tibble: 5 × 72
+#>   `__id`    roll_number street_number unit_number street_suffix street_direction
+#>   <chr>     <chr>               <int> <chr>       <lgl>         <lgl>           
+#> 1 row-rx57… 01000985500           230 <NA>        NA            NA              
+#> 2 row-wfu5… 01000986000           224 <NA>        NA            NA              
+#> 3 row-7fia… 01000986500           220 <NA>        NA            NA              
+#> 4 row-j3tv… 01000986800           216 <NA>        NA            NA              
+#> 5 row-buj5… 01000987500          3380 <NA>        NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
 #> #   basement_finish <chr>, year_built <int>, rooms <int>,
 #> #   air_conditioning <chr>, fire_place <chr>, attached_garage <chr>,
-#> #   detached_garage <chr>, pool <chr>, number_floors_condo <int>, …
+#> #   detached_garage <chr>, pool <chr>, number_floors_condo <int>,
+#> #   property_use_code <chr>, assessed_land_area <int>, …
 ```
 
-## OData Query Reference
+## Finding dataset IDs
+
+The easiest way is directly in R:
+
+``` r
+peg_catalogue() |>
+  filter(grepl("your search term", name, ignore.case = TRUE)) |>
+  select(name, id, category)
+```
+
+Alternatively, browse the [City of Winnipeg Open Data
+Portal](https://data.winnipeg.ca) and copy the ID from the dataset URL:
+
+``` R
+https://data.winnipeg.ca/d/d4mq-wa44
+                            ^^^^^^^^^^
+                            dataset ID
+```
+
+## OData filter reference
+
+[`peg_data()`](https://myominnoo.github.io/wpgdata/reference/peg_data.md)
+accepts plain R expressions in the `filter` argument and translates them
+to OData automatically. Raw OData strings are also accepted for advanced
+use.
 
 | R expression       | OData equivalent      | Meaning               |
 |--------------------|-----------------------|-----------------------|
@@ -294,53 +347,29 @@ peg_all("d4mq-wa44", max_pages = 3)
 | `x == 1 \| y == 2` | `(x eq 1 or y eq 2)`  | OR                    |
 | `!x`               | `not x`               | NOT                   |
 
-## Finding Dataset IDs
-
-The easiest way is directly in R:
-
-``` r
-peg_catalogue() |>
-  filter(grepl("your search term", name, ignore.case = TRUE)) |>
-  select(name, id, category)
-```
-
-Alternatively, browse the [City of Winnipeg Open Data
-Portal](https://data.winnipeg.ca) and copy the ID from the OData V4
-endpoint URL:
-
-``` R
-https://data.winnipeg.ca/api/odata/v4/d4mq-wa44
-                                      ^^^^^^^^^^
-                                      dataset ID
-```
-
 ## License
 
 MIT © [Myo Minn Oo](https://github.com/myominnoo)
 
 # Package index
 
-## Core functions
+## Discover & explore
 
-Main functions for accessing Winnipeg Open Data
+Find datasets and understand their structure.
 
 - [`peg_catalogue()`](https://myominnoo.github.io/wpgdata/reference/peg_catalogue.md)
   : List all datasets from the Winnipeg Open Data Portal
-- [`peg_get()`](https://myominnoo.github.io/wpgdata/reference/peg_get.md)
-  : Get a dataset from the Winnipeg Open Data Portal
-- [`peg_query()`](https://myominnoo.github.io/wpgdata/reference/peg_query.md)
-  : Query a dataset from the Winnipeg Open Data Portal
-- [`peg_all()`](https://myominnoo.github.io/wpgdata/reference/peg_all.md)
-  : Get all rows from a Winnipeg Open Data Portal dataset
-
-## Metadata functions
-
-Explore dataset structure before downloading
-
 - [`peg_info()`](https://myominnoo.github.io/wpgdata/reference/peg_info.md)
   : Get dataset-level information from the Winnipeg Open Data Portal
 - [`peg_metadata()`](https://myominnoo.github.io/wpgdata/reference/peg_metadata.md)
   : Get column names and types for a Winnipeg Open Data dataset
+
+## Fetch data
+
+Download rows with filtering, selection, and parallel pagination.
+
+- [`peg_data()`](https://myominnoo.github.io/wpgdata/reference/peg_data.md)
+  : Fetch data from the Winnipeg Open Data Portal
 
 # Articles
 

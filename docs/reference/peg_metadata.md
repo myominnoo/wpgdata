@@ -17,9 +17,8 @@ peg_metadata(dataset_id)
 ## Value
 
 A tibble with columns `name`, `field_name`, `type`, and `description`.
-Use `field_name` values in
-[`peg_query()`](https://myominnoo.github.io/wpgdata/reference/peg_query.md)
-for filtering and selecting columns.
+Use `field_name` values in `peg_query()` for filtering and selecting
+columns.
 
 ## Examples
 
@@ -27,8 +26,5 @@ for filtering and selecting columns.
 if (FALSE) { # \dontrun{
 # look up field names before querying
 peg_metadata("d4mq-wa44")
-
-# then use field_name in peg_query()
-peg_query("d4mq-wa44", filter = total_assessed_value > 500000)
 } # }
 ```
