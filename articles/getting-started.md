@@ -122,11 +122,11 @@ peg_catalogue(limit = 10)
 #>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-10     
 #>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-10     
 #>  5 gnxp-9hpt Public … "Public No… Develop… NA         2016-08-08 2026-03-10     
-#>  6 6rcy-9uik Recycli… "Collectio… Water a… OGL_CANADA 2017-09-08 2026-03-09     
-#>  7 hfwk-jp4h Tree In… "Detailed … Parks    OGL_CANADA 2017-08-22 2026-03-09     
+#>  6 hfwk-jp4h Tree In… "Detailed … Parks    OGL_CANADA 2017-08-22 2026-03-09     
+#>  7 p5sy-gt7y Aggrega… "Aggregate… Develop… NA         2016-12-21 2026-03-09     
 #>  8 it4w-cpf4 Detaile… "City of W… Develop… NA         2016-04-18 2026-03-01     
 #>  9 4her-3th5 311 Ser… "This data… Contact… NA         2015-07-22 2025-04-15     
-#> 10 p5sy-gt7y NA        NA         Uncateg… NA         NA         NA             
+#> 10 6rcy-9uik NA        NA         Uncateg… NA         NA         NA             
 #> # ℹ 15 more variables: view_last_modified <date>, publication_date <date>,
 #> #   index_updated_at <date>, row_count <int>, col_count <int>,
 #> #   download_count <int>, view_count <int>, group <chr>, department <chr>,
