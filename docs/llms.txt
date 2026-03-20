@@ -29,10 +29,7 @@ library(wpgdata)
 The package exposes four functions that follow a natural progression
 from discovery to download:
 
-``` R
-peg_catalogue()   →   peg_info()      →   peg_metadata()   →   peg_data()
-(find datasets)       (dataset info)      (column schema)      (fetch rows)
-```
+![](reference/figures/README-pipeline.svg)
 
 ### `peg_catalogue()` — discover available datasets
 
@@ -42,20 +39,20 @@ full catalogue arrives in seconds rather than minutes.
 
 ``` r
 peg_catalogue()
-#> # A tibble: 216 × 22
+#> # A tibble: 217 × 22
 #>    id        name     description category license_id created_at rows_updated_at
 #>    <chr>     <chr>    <chr>       <chr>    <chr>      <date>     <date>         
-#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-10     
-#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-10     
-#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-10     
-#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-10     
-#>  5 gnxp-9hpt Public … "Public No… Develop… <NA>       2016-08-08 2026-03-10     
-#>  6 tix9-r5tc Plow Zo… "Scheduled… City Pl… <NA>       2016-10-18 2026-03-10     
-#>  7 du7c-8488 Daily A… "The data … Insect … <NA>       2016-05-04 2026-03-10     
-#>  8 pfbi-rm6v FIPPA R… "The Freed… Organiz… OGL_CANADA 2019-09-10 2026-03-10     
-#>  9 tgrf-v2zc River W… "Record of… Water a… OGL_CANADA 2018-03-15 2026-03-10     
-#> 10 qe3f-4r3j Active … "The City … Neighbo… OGL_CANADA 2023-06-30 2026-03-10     
-#> # ℹ 206 more rows
+#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-20     
+#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-20     
+#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-20     
+#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-20     
+#>  5 gnxp-9hpt Public … "Public No… Develop… <NA>       2016-08-08 2026-03-20     
+#>  6 tix9-r5tc Plow Zo… "Scheduled… City Pl… <NA>       2016-10-18 2026-03-20     
+#>  7 8xrn-n992 Capital… "The Capit… Assessm… <NA>       2015-12-01 2026-03-20     
+#>  8 du7c-8488 Daily A… "The data … Insect … <NA>       2016-05-04 2026-03-20     
+#>  9 pfbi-rm6v FIPPA R… "The Freed… Organiz… OGL_CANADA 2019-09-10 2026-03-20     
+#> 10 tgrf-v2zc River W… "Record of… Water a… OGL_CANADA 2018-03-15 2026-03-20     
+#> # ℹ 207 more rows
 #> # ℹ 15 more variables: view_last_modified <date>, publication_date <date>,
 #> #   index_updated_at <date>, row_count <int>, col_count <int>,
 #> #   download_count <int>, view_count <int>, group <chr>, department <chr>,
@@ -76,7 +73,7 @@ peg_catalogue() |>
 #>    <chr>                                                  <int>
 #>  1 Census                                                    35
 #>  2 City Planning                                             27
-#>  3 Development Approvals, Building Permits, & Inspections    23
+#>  3 Development Approvals, Building Permits, & Inspections    24
 #>  4 Transportation Planning & Traffic Management              18
 #>  5 Uncategorized                                             16
 #>  6 Council Services                                          15
@@ -93,7 +90,7 @@ peg_catalogue() |>
 #> # A tibble: 1 × 3
 #>   name               id        rows_updated_at
 #>   <chr>              <chr>     <date>         
-#> 1 Assessment Parcels d4mq-wa44 2026-03-10
+#> 1 Assessment Parcels d4mq-wa44 2026-03-20
 ```
 
 Use `limit` to cap the number of datasets returned when exploring:
@@ -103,14 +100,14 @@ peg_catalogue(limit = 10)
 #> # A tibble: 10 × 22
 #>    id        name     description category license_id created_at rows_updated_at
 #>    <chr>     <chr>    <chr>       <chr>    <chr>      <date>     <date>         
-#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-10     
-#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-10     
-#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-10     
-#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-10     
-#>  5 gnxp-9hpt Public … "Public No… Develop… <NA>       2016-08-08 2026-03-10     
-#>  6 6rcy-9uik Recycli… "Collectio… Water a… OGL_CANADA 2017-09-08 2026-03-09     
-#>  7 hfwk-jp4h Tree In… "Detailed … Parks    OGL_CANADA 2017-08-22 2026-03-09     
-#>  8 p5sy-gt7y Aggrega… "Aggregate… Develop… <NA>       2016-12-21 2026-03-09     
+#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-20     
+#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-20     
+#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-20     
+#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-20     
+#>  5 gnxp-9hpt Public … "Public No… Develop… <NA>       2016-08-08 2026-03-20     
+#>  6 6rcy-9uik Recycli… "Collectio… Water a… OGL_CANADA 2017-09-08 2026-03-16     
+#>  7 hfwk-jp4h Tree In… "Detailed … Parks    OGL_CANADA 2017-08-22 2026-03-16     
+#>  8 p5sy-gt7y Aggrega… "Aggregate… Develop… <NA>       2016-12-21 2026-03-16     
 #>  9 it4w-cpf4 Detaile… "City of W… Develop… <NA>       2016-04-18 2026-03-01     
 #> 10 4her-3th5 311 Ser… "This data… Contact… <NA>       2015-07-22 2025-04-15     
 #> # ℹ 15 more variables: view_last_modified <date>, publication_date <date>,
@@ -129,7 +126,7 @@ peg_info("d4mq-wa44")
 #> # A tibble: 1 × 11
 #>   name        description category created_at rows_updated_at view_last_modified
 #>   <chr>       <chr>       <chr>    <date>     <date>          <date>            
-#> 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-10      2026-03-10        
+#> 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-20      2026-03-20        
 #> # ℹ 5 more variables: view_count <int>, download_count <int>, tags <list>,
 #> #   license <chr>, provenance <chr>
 ```
@@ -167,20 +164,20 @@ automatically — no manual pagination needed.
 
 ``` r
 peg_data("d4mq-wa44")
-#> # A tibble: 245,136 × 72
+#> # A tibble: 245,137 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
 #>    <chr>    <chr>               <int> <chr>       <chr>         <chr>           
-#>  1 row-ab5… 01000001000          1636 <NA>        <NA>          <NA>            
-#>  2 row-xxt… 01000005500          1584 <NA>        <NA>          <NA>            
-#>  3 row-cmg… 01000008000          1574 <NA>        <NA>          <NA>            
-#>  4 row-v9i… 01000008200          1550 <NA>        <NA>          <NA>            
-#>  5 row-t6s… 01000008400          1538 <NA>        <NA>          <NA>            
-#>  6 row-74m… 01000008500          1536 <NA>        <NA>          <NA>            
-#>  7 row-pq8… 01000013200          1520 <NA>        <NA>          <NA>            
-#>  8 row-d69… 01000013300          1510 <NA>        <NA>          <NA>            
-#>  9 row-6jq… 01000013600          1500 <NA>        <NA>          <NA>            
-#> 10 row-937… 01000013700          1490 <NA>        <NA>          <NA>            
-#> # ℹ 245,126 more rows
+#>  1 row-fhe… 01000001000          1636 <NA>        <NA>          <NA>            
+#>  2 row-b7y… 01000005500          1584 <NA>        <NA>          <NA>            
+#>  3 row-8en… 01000008000          1574 <NA>        <NA>          <NA>            
+#>  4 row-8e6… 01000008200          1550 <NA>        <NA>          <NA>            
+#>  5 row-8j4… 01000008400          1538 <NA>        <NA>          <NA>            
+#>  6 row-an3… 01000008500          1536 <NA>        <NA>          <NA>            
+#>  7 row-5zx… 01000013200          1520 <NA>        <NA>          <NA>            
+#>  8 row-uqt… 01000013300          1510 <NA>        <NA>          <NA>            
+#>  9 row-3kg… 01000013600          1500 <NA>        <NA>          <NA>            
+#> 10 row-vj8… 01000013700          1490 <NA>        <NA>          <NA>            
+#> # ℹ 245,127 more rows
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -196,11 +193,11 @@ peg_data("d4mq-wa44", top = 5)
 #> # A tibble: 5 × 72
 #>   `__id`    roll_number street_number unit_number street_suffix street_direction
 #>   <chr>     <chr>               <int> <chr>       <lgl>         <lgl>           
-#> 1 row-ab5p… 01000001000          1636 <NA>        NA            NA              
-#> 2 row-xxte… 01000005500          1584 <NA>        NA            NA              
-#> 3 row-cmgt… 01000008000          1574 <NA>        NA            NA              
-#> 4 row-v9ih… 01000008200          1550 <NA>        NA            NA              
-#> 5 row-t6sd… 01000008400          1538 <NA>        NA            NA              
+#> 1 row-fhe3… 01000001000          1636 <NA>        NA            NA              
+#> 2 row-b7ye… 01000005500          1584 <NA>        NA            NA              
+#> 3 row-8en9… 01000008000          1574 <NA>        NA            NA              
+#> 4 row-8e6t… 01000008200          1550 <NA>        NA            NA              
+#> 5 row-8j4b… 01000008400          1538 <NA>        NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -220,11 +217,11 @@ peg_data("d4mq-wa44",
 #> # A tibble: 5 × 72
 #>   `__id`    roll_number street_number unit_number street_suffix street_direction
 #>   <chr>     <chr>               <int> <chr>       <chr>         <chr>           
-#> 1 row-xxte… 01000005500          1584 <NA>        <NA>          <NA>            
-#> 2 row-pq84… 01000013200          1520 <NA>        <NA>          <NA>            
-#> 3 row-pbex… 01000014500          1450 <NA>        <NA>          <NA>            
-#> 4 row-jnpa… 01000045500          1290 <NA>        <NA>          <NA>            
-#> 5 row-xmck… 01000064000          1820 <NA>        <NA>          <NA>            
+#> 1 row-b7ye… 01000005500          1584 <NA>        <NA>          <NA>            
+#> 2 row-5zx2… 01000013200          1520 <NA>        <NA>          <NA>            
+#> 3 row-knr5… 01000014500          1450 <NA>        <NA>          <NA>            
+#> 4 row-vppr… 01000045500          1290 <NA>        <NA>          <NA>            
+#> 5 row-8j8g… 01000064000          1820 <NA>        <NA>          <NA>            
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -295,11 +292,11 @@ peg_data("d4mq-wa44", skip = 1000, top = 5)
 #> # A tibble: 5 × 72
 #>   `__id`    roll_number street_number unit_number street_suffix street_direction
 #>   <chr>     <chr>               <int> <chr>       <lgl>         <lgl>           
-#> 1 row-rx57… 01000985500           230 <NA>        NA            NA              
-#> 2 row-wfu5… 01000986000           224 <NA>        NA            NA              
-#> 3 row-7fia… 01000986500           220 <NA>        NA            NA              
-#> 4 row-j3tv… 01000986800           216 <NA>        NA            NA              
-#> 5 row-buj5… 01000987500          3380 <NA>        NA            NA              
+#> 1 row-s6k6… 01000985500           230 <NA>        NA            NA              
+#> 2 row-pgxs… 01000986000           224 <NA>        NA            NA              
+#> 3 row-4wsc… 01000986500           220 <NA>        NA            NA              
+#> 4 row-ka5d… 01000986800           216 <NA>        NA            NA              
+#> 5 row-q3va… 01000987500          3380 <NA>        NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,

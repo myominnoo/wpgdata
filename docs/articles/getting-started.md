@@ -23,8 +23,7 @@ library(dplyr)
 
 The typical `wpgdata` workflow follows four steps:
 
-    peg_catalogue()   →   peg_info()      →   peg_metadata()   →   peg_data()
-    (find datasets)       (dataset info)      (column schema)      (fetch rows)
+![](README-pipeline.svg)
 
 | Function | Purpose |
 |----|----|
@@ -45,20 +44,20 @@ arrives quickly regardless of size.
 ``` r
 catalogue <- peg_catalogue()
 catalogue
-#> # A tibble: 216 × 22
+#> # A tibble: 217 × 22
 #>    id        name     description category license_id created_at rows_updated_at
 #>    <chr>     <chr>    <chr>       <chr>    <chr>      <date>     <date>         
-#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-10     
-#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-10     
-#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-10     
-#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-10     
-#>  5 gnxp-9hpt Public … "Public No… Develop… NA         2016-08-08 2026-03-10     
-#>  6 tix9-r5tc Plow Zo… "Scheduled… City Pl… NA         2016-10-18 2026-03-10     
-#>  7 du7c-8488 Daily A… "The data … Insect … NA         2016-05-04 2026-03-10     
-#>  8 pfbi-rm6v FIPPA R… "The Freed… Organiz… OGL_CANADA 2019-09-10 2026-03-10     
-#>  9 tgrf-v2zc River W… "Record of… Water a… OGL_CANADA 2018-03-15 2026-03-10     
-#> 10 qe3f-4r3j Active … "The City … Neighbo… OGL_CANADA 2023-06-30 2026-03-10     
-#> # ℹ 206 more rows
+#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-20     
+#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-20     
+#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-20     
+#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-20     
+#>  5 gnxp-9hpt Public … "Public No… Develop… NA         2016-08-08 2026-03-20     
+#>  6 tix9-r5tc Plow Zo… "Scheduled… City Pl… NA         2016-10-18 2026-03-20     
+#>  7 8xrn-n992 Capital… "The Capit… Assessm… NA         2015-12-01 2026-03-20     
+#>  8 du7c-8488 Daily A… "The data … Insect … NA         2016-05-04 2026-03-20     
+#>  9 pfbi-rm6v FIPPA R… "The Freed… Organiz… OGL_CANADA 2019-09-10 2026-03-20     
+#> 10 tgrf-v2zc River W… "Record of… Water a… OGL_CANADA 2018-03-15 2026-03-20     
+#> # ℹ 207 more rows
 #> # ℹ 15 more variables: view_last_modified <date>, publication_date <date>,
 #> #   index_updated_at <date>, row_count <int>, col_count <int>,
 #> #   download_count <int>, view_count <int>, group <chr>, department <chr>,
@@ -76,7 +75,7 @@ catalogue |>
 #>    <chr>                                                  <int>
 #>  1 Census                                                    35
 #>  2 City Planning                                             27
-#>  3 Development Approvals, Building Permits, & Inspections    23
+#>  3 Development Approvals, Building Permits, & Inspections    24
 #>  4 Transportation Planning & Traffic Management              18
 #>  5 Uncategorized                                             16
 #>  6 Council Services                                          15
@@ -96,7 +95,7 @@ catalogue |>
 #> # A tibble: 1 × 3
 #>   name               id        rows_updated_at
 #>   <chr>              <chr>     <date>         
-#> 1 Assessment Parcels d4mq-wa44 2026-03-10
+#> 1 Assessment Parcels d4mq-wa44 2026-03-20
 ```
 
 Use the `id` value in any other `peg_*` function:
@@ -117,14 +116,14 @@ peg_catalogue(limit = 10)
 #> # A tibble: 10 × 22
 #>    id        name     description category license_id created_at rows_updated_at
 #>    <chr>     <chr>    <chr>       <chr>    <chr>      <date>     <date>         
-#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-10     
-#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-10     
-#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-10     
-#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-10     
-#>  5 gnxp-9hpt Public … "Public No… Develop… NA         2016-08-08 2026-03-10     
-#>  6 6rcy-9uik Recycli… "Collectio… Water a… OGL_CANADA 2017-09-08 2026-03-09     
-#>  7 hfwk-jp4h Tree In… "Detailed … Parks    OGL_CANADA 2017-08-22 2026-03-09     
-#>  8 p5sy-gt7y Aggrega… "Aggregate… Develop… NA         2016-12-21 2026-03-09     
+#>  1 d4mq-wa44 Assessm… "List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-20     
+#>  2 yg42-q284 WFPS Ca… "The data … Fire an… OGL_CANADA 2020-12-14 2026-03-20     
+#>  3 iibp-28fx Burial … "Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-20     
+#>  4 vrzk-mj7v 311 Cal… "Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-20     
+#>  5 gnxp-9hpt Public … "Public No… Develop… NA         2016-08-08 2026-03-20     
+#>  6 6rcy-9uik Recycli… "Collectio… Water a… OGL_CANADA 2017-09-08 2026-03-16     
+#>  7 hfwk-jp4h Tree In… "Detailed … Parks    OGL_CANADA 2017-08-22 2026-03-16     
+#>  8 p5sy-gt7y Aggrega… "Aggregate… Develop… NA         2016-12-21 2026-03-16     
 #>  9 it4w-cpf4 Detaile… "City of W… Develop… NA         2016-04-18 2026-03-01     
 #> 10 4her-3th5 311 Ser… "This data… Contact… NA         2015-07-22 2025-04-15     
 #> # ℹ 15 more variables: view_last_modified <date>, publication_date <date>,
@@ -147,7 +146,7 @@ peg_info("d4mq-wa44")
 #> # A tibble: 1 × 11
 #>   name        description category created_at rows_updated_at view_last_modified
 #>   <chr>       <chr>       <chr>    <date>     <date>          <date>            
-#> 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-10      2026-03-10        
+#> 1 Assessment… List of al… Assessm… 2017-08-23 2026-03-20      2026-03-20        
 #> # ℹ 5 more variables: view_count <int>, download_count <int>, tags <list>,
 #> #   license <chr>, provenance <chr>
 ```
@@ -240,11 +239,11 @@ peg_data("d4mq-wa44", top = 5)
 #> # A tibble: 5 × 72
 #>   `__id`    roll_number street_number unit_number street_suffix street_direction
 #>   <chr>     <chr>               <int> <chr>       <lgl>         <lgl>           
-#> 1 row-ab5p… 01000001000          1636 NA          NA            NA              
-#> 2 row-xxte… 01000005500          1584 NA          NA            NA              
-#> 3 row-cmgt… 01000008000          1574 NA          NA            NA              
-#> 4 row-v9ih… 01000008200          1550 NA          NA            NA              
-#> 5 row-t6sd… 01000008400          1538 NA          NA            NA              
+#> 1 row-fhe3… 01000001000          1636 NA          NA            NA              
+#> 2 row-b7ye… 01000005500          1584 NA          NA            NA              
+#> 3 row-8en9… 01000008000          1574 NA          NA            NA              
+#> 4 row-8e6t… 01000008200          1550 NA          NA            NA              
+#> 5 row-8j4b… 01000008400          1538 NA          NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -266,16 +265,16 @@ peg_data("d4mq-wa44",
 #> # A tibble: 10 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
 #>    <chr>    <chr>               <int> <chr>       <chr>         <chr>           
-#>  1 row-xxt… 01000005500          1584 NA          NA            NA              
-#>  2 row-pq8… 01000013200          1520 NA          NA            NA              
-#>  3 row-pbe… 01000014500          1450 NA          NA            NA              
-#>  4 row-jnp… 01000045500          1290 NA          NA            NA              
-#>  5 row-xmc… 01000064000          1820 NA          NA            NA              
-#>  6 row-p55… 01000067500          1916 NA          NA            NA              
-#>  7 row-52k… 01000067900          1892 NA          NA            NA              
-#>  8 row-tap… 01000092200          1700 NA          NA            NA              
-#>  9 row-mdd… 01000096000          1720 NA          NA            NA              
-#> 10 row-epn… 01000306500          2424 NA          NA            NA              
+#>  1 row-b7y… 01000005500          1584 NA          NA            NA              
+#>  2 row-5zx… 01000013200          1520 NA          NA            NA              
+#>  3 row-knr… 01000014500          1450 NA          NA            NA              
+#>  4 row-vpp… 01000045500          1290 NA          NA            NA              
+#>  5 row-8j8… 01000064000          1820 NA          NA            NA              
+#>  6 row-mst… 01000067500          1916 NA          NA            NA              
+#>  7 row-wq5… 01000067900          1892 NA          NA            NA              
+#>  8 row-hfi… 01000092200          1700 NA          NA            NA              
+#>  9 row-9rr… 01000096000          1720 NA          NA            NA              
+#> 10 row-e9m… 01000306500          2424 NA          NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -295,16 +294,16 @@ peg_data("d4mq-wa44",
 #> # A tibble: 10 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
 #>    <chr>    <chr>               <int> <chr>       <chr>         <chr>           
-#>  1 row-xxt… 01000005500          1584 NA          NA            NA              
-#>  2 row-pq8… 01000013200          1520 NA          NA            NA              
-#>  3 row-pbe… 01000014500          1450 NA          NA            NA              
-#>  4 row-jnp… 01000045500          1290 NA          NA            NA              
-#>  5 row-xmc… 01000064000          1820 NA          NA            NA              
-#>  6 row-p55… 01000067500          1916 NA          NA            NA              
-#>  7 row-52k… 01000067900          1892 NA          NA            NA              
-#>  8 row-tap… 01000092200          1700 NA          NA            NA              
-#>  9 row-mdd… 01000096000          1720 NA          NA            NA              
-#> 10 row-epn… 01000306500          2424 NA          NA            NA              
+#>  1 row-b7y… 01000005500          1584 NA          NA            NA              
+#>  2 row-5zx… 01000013200          1520 NA          NA            NA              
+#>  3 row-knr… 01000014500          1450 NA          NA            NA              
+#>  4 row-vpp… 01000045500          1290 NA          NA            NA              
+#>  5 row-8j8… 01000064000          1820 NA          NA            NA              
+#>  6 row-mst… 01000067500          1916 NA          NA            NA              
+#>  7 row-wq5… 01000067900          1892 NA          NA            NA              
+#>  8 row-hfi… 01000092200          1700 NA          NA            NA              
+#>  9 row-9rr… 01000096000          1720 NA          NA            NA              
+#> 10 row-e9m… 01000306500          2424 NA          NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -328,16 +327,16 @@ peg_data("d4mq-wa44",
 #> # A tibble: 10 × 72
 #>    `__id`   roll_number street_number unit_number street_suffix street_direction
 #>    <chr>    <chr>               <int> <chr>       <lgl>         <chr>           
-#>  1 row-xxt… 01000005500          1584 NA          NA            NA              
-#>  2 row-pq8… 01000013200          1520 NA          NA            NA              
-#>  3 row-pbe… 01000014500          1450 NA          NA            NA              
-#>  4 row-xmc… 01000064000          1820 NA          NA            NA              
-#>  5 row-55u… 01000560000          3179 NA          NA            NA              
-#>  6 row-mqy… 01000615000             3 NA          NA            NA              
-#>  7 row-3w2… 01000615400            17 NA          NA            NA              
-#>  8 row-k94… 01000615800            31 NA          NA            NA              
-#>  9 row-ttt… 01000617400            36 NA          NA            NA              
-#> 10 row-97f… 01000718800           400 NA          NA            NA              
+#>  1 row-b7y… 01000005500          1584 NA          NA            NA              
+#>  2 row-5zx… 01000013200          1520 NA          NA            NA              
+#>  3 row-knr… 01000014500          1450 NA          NA            NA              
+#>  4 row-8j8… 01000064000          1820 NA          NA            NA              
+#>  5 row-md5… 01000560000          3179 NA          NA            NA              
+#>  6 row-x5m… 01000615000             3 NA          NA            NA              
+#>  7 row-hrh… 01000615400            17 NA          NA            NA              
+#>  8 row-2x2… 01000615800            31 NA          NA            NA              
+#>  9 row-h9d… 01000617400            36 NA          NA            NA              
+#> 10 row-fbt… 01000718800           400 NA          NA            NA              
 #> # ℹ 66 more variables: street_name <chr>, street_type <chr>,
 #> #   full_address <chr>, neighbourhood_area <chr>, market_region <chr>,
 #> #   total_living_area <int>, building_type <chr>, basement <chr>,
@@ -482,16 +481,16 @@ peg_data(
 #> # A tibble: 100 × 10
 #>    case_id   channel_type subject reason type  open_date closed_date case_status
 #>    <chr>     <chr>        <chr>   <chr>  <chr> <chr>     <chr>       <chr>      
-#>  1 925ba982… Voice In     Servic… Publi… Pave… 2018-04-… 2026-03-06… Closed     
-#>  2 d81f9c30… VOF          Servic… Publi… Graf… 2023-12-… 2026-03-06… Closed     
-#>  3 5b52f3b4… VOF          Servic… Publi… Graf… 2023-12-… 2026-03-06… Closed     
-#>  4 71c5dea2… VOF          Servic… Publi… Graf… 2023-12-… 2026-03-06… Closed     
-#>  5 c48b7cd1… Dept Create… Servic… Publi… Graf… 2023-12-… 2026-03-06… Closed     
-#>  6 b68d46fc… VOF          Servic… Publi… Graf… 2024-01-… 2026-03-06… Closed     
-#>  7 9c5748e5… e-mail In    Servic… Publi… Graf… 2024-01-… 2026-03-06… Closed     
-#>  8 b3e723ff… e-mail In    Servic… Publi… Graf… 2024-02-… 2026-03-06… Closed     
-#>  9 15271674… e-mail In    Servic… Publi… Graf… 2024-03-… 2026-03-06… Closed     
-#> 10 d19dadf0… VOF          Servic… Publi… Graf… 2024-03-… 2026-03-06… Closed     
+#>  1 00e17bc8… Voice In     Servic… Water… Wate… 2014-09-… 2026-03-18… Closed     
+#>  2 0130e8c6… Voice In     Servic… City … Indi… 2018-11-… 2026-03-17… Closed     
+#>  3 0145e387… Voice In     Servic… Water… Wate… 2014-06-… 2026-03-18… Closed     
+#>  4 016c4370… Voice In     Servic… Water… Wate… 2014-02-… 2026-03-18… Closed     
+#>  5 01d35870… Voice In     Servic… Water… Wate… 2014-09-… 2026-03-18… Closed     
+#>  6 029fed7e… Voice In     Servic… City … Indi… 2019-03-… 2026-03-17… Closed     
+#>  7 042218b5… Voice In     Servic… Water… Valv… 2014-03-… 2026-03-18… Closed     
+#>  8 04d029f1… Voice In     Servic… Water… Valv… 2014-05-… 2026-03-18… Closed     
+#>  9 05d0fc55… Voice In     Servic… Plann… City… 2015-10-… 2026-03-17… Closed     
+#> 10 05d0fc55… Self Service Servic… Plann… City… 2015-10-… 2026-03-17… Closed     
 #> # ℹ 90 more rows
 #> # ℹ 2 more variables: neighbourhood <chr>, ward <chr>
 ```
@@ -546,16 +545,16 @@ peg_data(
 #> # A tibble: 100 × 7
 #>    case_id              subject reason open_date case_status neighbourhood ward 
 #>    <chr>                <chr>   <chr>  <chr>     <chr>       <chr>         <chr>
-#>  1 651af1c08e9e943d4c6… Servic… Water… 2026-03-… Open        Garden City   Old …
-#>  2 0b8f964f48a39e42332… Servic… Water… 2026-03-… Open        NA            NA   
-#>  3 ffa4c42ea341c4b0a82… Servic… Water… 2026-03-… Open        West Alexand… Poin…
-#>  4 cdc7299136ca05917c7… Servic… Publi… 2026-03-… Open        Assiniboia D… Char…
-#>  5 738c5f21c1420e128ee… Servic… Publi… 2026-03-… Open        NA            NA   
-#>  6 16c8bd44b69b98665cc… Servic… Water… 2026-03-… Open        NA            NA   
-#>  7 87d4bb9f18e575fc7a6… Servic… Water… 2026-03-… Open        NA            NA   
-#>  8 71a97c142fecf839d6f… Servic… Publi… 2026-03-… Open        NA            NA   
-#>  9 bb1a3cc58a09a7a1044… Servic… Publi… 2026-03-… Open        Wellington C… Rive…
-#> 10 fd3917710d58a0fe5e5… Servic… Publi… 2026-03-… Open        Weston        Poin…
+#>  1 85737cf8aed019baf1b… Servic… Asses… 2026-03-… Open        NA            NA   
+#>  2 a5f641c1fefc70ff811… Servic… Water… 2026-03-… Open        King Edward   St. …
+#>  3 14413d52546953d2bf9… Servic… Water… 2026-03-… Open        Pulberry      St. …
+#>  4 def3469b275f18e5096… Servic… Trans… 2026-03-… Open        NA            NA   
+#>  5 959b3538554dd6e8524… Servic… Asses… 2026-03-… Open        River East    Nort…
+#>  6 0d00b3abc5db0f1caea… Servic… Publi… 2026-03-… Open        NA            NA   
+#>  7 0a8da3ffeea5d452f8a… Servic… Publi… 2026-03-… Open        NA            NA   
+#>  8 ba23f5972a6c8736651… Servic… Water… 2026-03-… Open        NA            NA   
+#>  9 62a617b57be61a7df4f… Servic… Water… 2026-03-… Open        Holden        St. …
+#> 10 4e767e8dc87d00cb621… Servic… Water… 2026-03-… Open        Silver Heigh… St. …
 #> # ℹ 90 more rows
 ```
 
@@ -576,17 +575,16 @@ peg_data(
   orderby = "closed_date desc",
   top     = 100L
 )
-#> # A tibble: 8 × 6
+#> # A tibble: 7 × 6
 #>   case_id               channel_type subject open_date closed_date neighbourhood
 #>   <chr>                 <chr>        <chr>   <chr>     <chr>       <chr>        
-#> 1 e7aeea7ab60a8ea2a38d… Voice In     Servic… 2026-03-… 2026-03-09… Wildwood     
-#> 2 3196e0629b27fd06c63a… Voice In     Inform… 2026-03-… 2026-03-09… NA           
-#> 3 9ceb51f74afd7cf65cf6… Voice In     Inform… 2026-03-… 2026-03-09… NA           
-#> 4 ec2beb625c867971ebad… Voice In     Inform… 2026-03-… 2026-03-09… NA           
-#> 5 d16150e9e7fc38d82621… e-mail In    Servic… 2026-03-… 2026-03-09… NA           
-#> 6 becae90412837deb7a7f… Voice In     Inform… 2026-03-… 2026-03-09… NA           
-#> 7 fa7630c2d7b2cb195025… Voice In     Inform… 2026-03-… 2026-03-09… NA           
-#> 8 1dee42a9a3f437aba836… Voice In     Inform… 2026-03-… 2026-03-09… NA
+#> 1 5290205807c2d82aa351… Voice In     Servic… 2026-03-… 2026-03-19… Tyndall Park 
+#> 2 86dac5efdb20f2cec795… VOF          Servic… 2026-03-… 2026-03-19… NA           
+#> 3 e904e530d8d53c6ad88b… Voice In     Inform… 2026-03-… 2026-03-19… NA           
+#> 4 3887658d92e0ebd73e6d… Voice In     Servic… 2026-03-… 2026-03-19… Munroe East  
+#> 5 6ced2002c49a11832772… Voice In     Servic… 2026-03-… 2026-03-19… NA           
+#> 6 0be9a18a56d20852ff76… Voice In     Servic… 2026-03-… 2026-03-19… NA           
+#> 7 cdbcadd803817f39dbe0… Voice In     Inform… 2026-03-… 2026-03-19… NA
 ```
 
 > **Note:** The `top` argument is included in all date filter examples

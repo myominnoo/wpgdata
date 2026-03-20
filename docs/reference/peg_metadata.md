@@ -17,8 +17,9 @@ peg_metadata(dataset_id)
 ## Value
 
 A tibble with columns `name`, `field_name`, `type`, and `description`.
-Use `field_name` values in `peg_query()` for filtering and selecting
-columns.
+Use `field_name` values in
+[`peg_data()`](https://myominnoo.github.io/wpgdata/reference/peg_data.md)
+for filtering and selecting columns.
 
 ## Examples
 

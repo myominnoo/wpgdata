@@ -90,8 +90,7 @@ datasets.</p>
 <h2 id="workflow-overview">Workflow overview<a class="anchor" aria-label="anchor" href="#workflow-overview"></a>
 </h2>
 <p>The typical <code>wpgdata</code> workflow follows four steps:</p>
-<pre><code>peg_catalogue()   →   peg_info()      →   peg_metadata()   →   peg_data()
-(find datasets)       (dataset info)      (column schema)      (fetch rows)</code></pre>
+<p><img src="README-pipeline.svg" class="r-plt" alt="" width="100%"></p>
 <table class="table">
 <thead><tr class="header">
 <th>Function</th>
@@ -124,23 +123,23 @@ datasets.</p>
 <p><code><a href="../reference/peg_catalogue.html">peg_catalogue()</a></code> retrieves every published dataset from
 the portal. Both catalogue pages and per-dataset metadata are fetched in
 parallel, so the full catalogue arrives quickly regardless of size.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">catalogue</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">catalogue</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 216 × 22</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 217 × 22</span></span></span>
 <span><span class="co">#&gt;    id        name     description category license_id created_at rows_updated_at</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> d4mq-wa44 Assessm… <span style="color: #949494;">"</span>List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> yg42-q284 WFPS Ca… <span style="color: #949494;">"</span>The data … Fire an… OGL_CANADA 2020-12-14 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> iibp-28fx Burial … <span style="color: #949494;">"</span>Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> vrzk-mj7v 311 Cal… <span style="color: #949494;">"</span>Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> gnxp-9hpt Public … <span style="color: #949494;">"</span>Public No… Develop… <span style="color: #BB0000;">NA</span>         2016-08-08 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> tix9-r5tc Plow Zo… <span style="color: #949494;">"</span>Scheduled… City Pl… <span style="color: #BB0000;">NA</span>         2016-10-18 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> du7c-8488 Daily A… <span style="color: #949494;">"</span>The data … Insect … <span style="color: #BB0000;">NA</span>         2016-05-04 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> pfbi-rm6v FIPPA R… <span style="color: #949494;">"</span>The Freed… Organiz… OGL_CANADA 2019-09-10 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> tgrf-v2zc River W… <span style="color: #949494;">"</span>Record of… Water a… OGL_CANADA 2018-03-15 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> qe3f-4r3j Active … <span style="color: #949494;">"</span>The City … Neighbo… OGL_CANADA 2023-06-30 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 206 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> d4mq-wa44 Assessm… <span style="color: #949494;">"</span>List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> yg42-q284 WFPS Ca… <span style="color: #949494;">"</span>The data … Fire an… OGL_CANADA 2020-12-14 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> iibp-28fx Burial … <span style="color: #949494;">"</span>Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> vrzk-mj7v 311 Cal… <span style="color: #949494;">"</span>Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> gnxp-9hpt Public … <span style="color: #949494;">"</span>Public No… Develop… <span style="color: #BB0000;">NA</span>         2016-08-08 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> tix9-r5tc Plow Zo… <span style="color: #949494;">"</span>Scheduled… City Pl… <span style="color: #BB0000;">NA</span>         2016-10-18 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 8xrn-n992 Capital… <span style="color: #949494;">"</span>The Capit… Assessm… <span style="color: #BB0000;">NA</span>         2015-12-01 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> du7c-8488 Daily A… <span style="color: #949494;">"</span>The data … Insect … <span style="color: #BB0000;">NA</span>         2016-05-04 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> pfbi-rm6v FIPPA R… <span style="color: #949494;">"</span>The Freed… Organiz… OGL_CANADA 2019-09-10 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> tgrf-v2zc River W… <span style="color: #949494;">"</span>Record of… Water a… OGL_CANADA 2018-03-15 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 207 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 15 more variables: view_last_modified &lt;date&gt;, publication_date &lt;date&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   index_updated_at &lt;date&gt;, row_count &lt;int&gt;, col_count &lt;int&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   download_count &lt;int&gt;, view_count &lt;int&gt;, group &lt;chr&gt;, department &lt;chr&gt;,</span></span></span>
@@ -148,7 +147,7 @@ parallel, so the full catalogue arrives quickly regardless of size.</p>
 <span><span class="co">#&gt; <span style="color: #949494;">#   license_link &lt;chr&gt;, tags &lt;list&gt;, url &lt;chr&gt;</span></span></span></code></pre></div>
 <p>Count datasets by category to get an overview of what’s
 available:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">catalogue</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/count.html" class="external-link">count</a></span><span class="op">(</span><span class="va">category</span>, sort <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 26 × 2</span></span></span>
@@ -156,7 +155,7 @@ available:</p>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                                  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> Census                                                    35</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> City Planning                                             27</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Development Approvals, Building Permits, &amp; Inspections    23</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> Development Approvals, Building Permits, &amp; Inspections    24</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> Transportation Planning &amp; Traffic Management              18</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> Uncategorized                                             16</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> Council Services                                          15</span></span>
@@ -166,17 +165,17 @@ available:</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Contact Centre - 311                                       7</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 16 more rows</span></span></span></code></pre></div>
 <p>Search by name to find a dataset and retrieve its ID:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">catalogue</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"assessment"</span>, <span class="va">name</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">rows_updated_at</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;   name               id        rows_updated_at</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Assessment Parcels d4mq-wa44 2026-03-10</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Assessment Parcels d4mq-wa44 2026-03-20</span></span></code></pre></div>
 <p>Use the <code>id</code> value in any other <code>peg_*</code>
 function:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dataset_id</span> <span class="op">&lt;-</span> <span class="va">catalogue</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">name</span> <span class="op">==</span> <span class="st">"Assessment Parcels"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/pull.html" class="external-link">pull</a></span><span class="op">(</span><span class="va">id</span><span class="op">)</span></span>
@@ -184,19 +183,19 @@ function:</p>
 <span><span class="va">dataset_id</span></span>
 <span><span class="co">#&gt; [1] "d4mq-wa44"</span></span></code></pre></div>
 <p>Use <code>limit</code> to cap results while exploring:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span>limit <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 22</span></span></span>
 <span><span class="co">#&gt;    id        name     description category license_id created_at rows_updated_at</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>         </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> d4mq-wa44 Assessm… <span style="color: #949494;">"</span>List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> yg42-q284 WFPS Ca… <span style="color: #949494;">"</span>The data … Fire an… OGL_CANADA 2020-12-14 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> iibp-28fx Burial … <span style="color: #949494;">"</span>Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> vrzk-mj7v 311 Cal… <span style="color: #949494;">"</span>Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> gnxp-9hpt Public … <span style="color: #949494;">"</span>Public No… Develop… <span style="color: #BB0000;">NA</span>         2016-08-08 2026-03-10     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 6rcy-9uik Recycli… <span style="color: #949494;">"</span>Collectio… Water a… OGL_CANADA 2017-09-08 2026-03-09     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> hfwk-jp4h Tree In… <span style="color: #949494;">"</span>Detailed … Parks    OGL_CANADA 2017-08-22 2026-03-09     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> p5sy-gt7y Aggrega… <span style="color: #949494;">"</span>Aggregate… Develop… <span style="color: #BB0000;">NA</span>         2016-12-21 2026-03-09     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> d4mq-wa44 Assessm… <span style="color: #949494;">"</span>List of a… Assessm… OGL_CANADA 2017-08-23 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> yg42-q284 WFPS Ca… <span style="color: #949494;">"</span>The data … Fire an… OGL_CANADA 2020-12-14 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> iibp-28fx Burial … <span style="color: #949494;">"</span>Locations… Cemeter… OGL_CANADA 2016-01-29 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> vrzk-mj7v 311 Cal… <span style="color: #949494;">"</span>Caller wa… Contact… OGL_CANADA 2022-06-17 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> gnxp-9hpt Public … <span style="color: #949494;">"</span>Public No… Develop… <span style="color: #BB0000;">NA</span>         2016-08-08 2026-03-20     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 6rcy-9uik Recycli… <span style="color: #949494;">"</span>Collectio… Water a… OGL_CANADA 2017-09-08 2026-03-16     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> hfwk-jp4h Tree In… <span style="color: #949494;">"</span>Detailed … Parks    OGL_CANADA 2017-08-22 2026-03-16     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> p5sy-gt7y Aggrega… <span style="color: #949494;">"</span>Aggregate… Develop… <span style="color: #BB0000;">NA</span>         2016-12-21 2026-03-16     </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> it4w-cpf4 Detaile… <span style="color: #949494;">"</span>City of W… Develop… <span style="color: #BB0000;">NA</span>         2016-04-18 2026-03-01     </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4her-3th5 311 Ser… <span style="color: #949494;">"</span>This data… Contact… <span style="color: #BB0000;">NA</span>         2015-07-22 2025-04-15     </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 15 more variables: view_last_modified &lt;date&gt;, publication_date &lt;date&gt;,</span></span></span>
@@ -212,12 +211,12 @@ function:</p>
 <p><code><a href="../reference/peg_info.html">peg_info()</a></code> returns high-level metadata for a single
 dataset — name, description, category, update frequency, row count, and
 license:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_info.html">peg_info</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 11</span></span></span>
 <span><span class="co">#&gt;   name        description category created_at rows_updated_at view_last_modified</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;date&gt;</span>            </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Assessment… List of al… Assessm… 2017-08-23 2026-03-10      2026-03-10        </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> Assessment… List of al… Assessm… 2017-08-23 2026-03-20      2026-03-20        </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 5 more variables: view_count &lt;int&gt;, download_count &lt;int&gt;, tags &lt;list&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   license &lt;chr&gt;, provenance &lt;chr&gt;</span></span></span></code></pre></div>
 <p>This is useful before committing to a large download: it tells you
@@ -231,7 +230,7 @@ license it is published under.</p>
 <p>OData queries require exact field names. Use
 <code><a href="../reference/peg_metadata.html">peg_metadata()</a></code> to look up available fields and their types
 before writing any query:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">meta</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peg_metadata.html">peg_metadata</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span><span class="op">)</span></span>
 <span><span class="va">meta</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 71 × 4</span></span></span>
@@ -253,7 +252,7 @@ before writing any query:</p>
 a field is text, number, floating timestamp, or another type — important
 for writing correct filter expressions.</p>
 <p>Find numeric fields only:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">meta</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">type</span> <span class="op">==</span> <span class="st">"number"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 24 × 4</span></span></span>
@@ -271,7 +270,7 @@ for writing correct filter expressions.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> Total Proposed Assessment Value total_proposed_assessment_… numb… <span style="color: #BB0000;">NA</span>         </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 14 more rows</span></span></span></code></pre></div>
 <p>Find timestamp fields (relevant for date filtering):</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">meta</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">type</span> <span class="op">==</span> <span class="st">"calendar_date"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 4</span></span></span>
@@ -292,16 +291,16 @@ pagination needed.</p>
 <h3 id="quick-preview">Quick preview<a class="anchor" aria-label="anchor" href="#quick-preview"></a>
 </h3>
 <p>Fetch a small sample to inspect structure before a larger query:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>, top <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 72</span></span></span>
 <span><span class="co">#&gt;   `__id`    roll_number street_number unit_number street_suffix street_direction</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> row-ab5p… 01000001000          <span style="text-decoration: underline;">1</span>636 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> row-xxte… 01000005500          <span style="text-decoration: underline;">1</span>584 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> row-cmgt… 01000008000          <span style="text-decoration: underline;">1</span>574 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> row-v9ih… 01000008200          <span style="text-decoration: underline;">1</span>550 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> row-t6sd… 01000008400          <span style="text-decoration: underline;">1</span>538 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> row-fhe3… 01000001000          <span style="text-decoration: underline;">1</span>636 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> row-b7ye… 01000005500          <span style="text-decoration: underline;">1</span>584 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> row-8en9… 01000008000          <span style="text-decoration: underline;">1</span>574 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> row-8e6t… 01000008200          <span style="text-decoration: underline;">1</span>550 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> row-8j4b… 01000008400          <span style="text-decoration: underline;">1</span>538 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 66 more variables: street_name &lt;chr&gt;, street_type &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   full_address &lt;chr&gt;, neighbourhood_area &lt;chr&gt;, market_region &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   total_living_area &lt;int&gt;, building_type &lt;chr&gt;, basement &lt;chr&gt;,</span></span></span>
@@ -315,7 +314,7 @@ pagination needed.</p>
 </h3>
 <p>Pass R expressions directly — <code>wpgdata</code> translates them to
 OData syntax:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  filter <span class="op">=</span> <span class="va">total_assessed_value</span> <span class="op">&gt;</span> <span class="fl">1000000</span>,</span>
 <span>  top    <span class="op">=</span> <span class="fl">10</span></span>
@@ -323,16 +322,16 @@ OData syntax:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 72</span></span></span>
 <span><span class="co">#&gt;    `__id`   roll_number street_number unit_number street_suffix street_direction</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> row-xxt… 01000005500          <span style="text-decoration: underline;">1</span>584 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> row-pq8… 01000013200          <span style="text-decoration: underline;">1</span>520 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> row-pbe… 01000014500          <span style="text-decoration: underline;">1</span>450 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> row-jnp… 01000045500          <span style="text-decoration: underline;">1</span>290 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> row-xmc… 01000064000          <span style="text-decoration: underline;">1</span>820 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> row-p55… 01000067500          <span style="text-decoration: underline;">1</span>916 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> row-52k… 01000067900          <span style="text-decoration: underline;">1</span>892 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> row-tap… 01000092200          <span style="text-decoration: underline;">1</span>700 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> row-mdd… 01000096000          <span style="text-decoration: underline;">1</span>720 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> row-epn… 01000306500          <span style="text-decoration: underline;">2</span>424 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> row-b7y… 01000005500          <span style="text-decoration: underline;">1</span>584 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> row-5zx… 01000013200          <span style="text-decoration: underline;">1</span>520 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> row-knr… 01000014500          <span style="text-decoration: underline;">1</span>450 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> row-vpp… 01000045500          <span style="text-decoration: underline;">1</span>290 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> row-8j8… 01000064000          <span style="text-decoration: underline;">1</span>820 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> row-mst… 01000067500          <span style="text-decoration: underline;">1</span>916 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> row-wq5… 01000067900          <span style="text-decoration: underline;">1</span>892 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> row-hfi… 01000092200          <span style="text-decoration: underline;">1</span>700 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> row-9rr… 01000096000          <span style="text-decoration: underline;">1</span>720 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> row-e9m… 01000306500          <span style="text-decoration: underline;">2</span>424 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 66 more variables: street_name &lt;chr&gt;, street_type &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   full_address &lt;chr&gt;, neighbourhood_area &lt;chr&gt;, market_region &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   total_living_area &lt;int&gt;, building_type &lt;chr&gt;, basement &lt;chr&gt;,</span></span></span>
@@ -341,7 +340,7 @@ OData syntax:</p>
 <span><span class="co">#&gt; <span style="color: #949494;">#   detached_garage &lt;chr&gt;, pool &lt;chr&gt;, number_floors_condo &lt;lgl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   property_use_code &lt;chr&gt;, assessed_land_area &lt;int&gt;, …</span></span></span></code></pre></div>
 <p>Or use raw OData strings if you prefer:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  filter <span class="op">=</span> <span class="st">"total_assessed_value gt 1000000"</span>,</span>
 <span>  top    <span class="op">=</span> <span class="fl">10</span></span>
@@ -349,16 +348,16 @@ OData syntax:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 72</span></span></span>
 <span><span class="co">#&gt;    `__id`   roll_number street_number unit_number street_suffix street_direction</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> row-xxt… 01000005500          <span style="text-decoration: underline;">1</span>584 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> row-pq8… 01000013200          <span style="text-decoration: underline;">1</span>520 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> row-pbe… 01000014500          <span style="text-decoration: underline;">1</span>450 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> row-jnp… 01000045500          <span style="text-decoration: underline;">1</span>290 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> row-xmc… 01000064000          <span style="text-decoration: underline;">1</span>820 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> row-p55… 01000067500          <span style="text-decoration: underline;">1</span>916 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> row-52k… 01000067900          <span style="text-decoration: underline;">1</span>892 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> row-tap… 01000092200          <span style="text-decoration: underline;">1</span>700 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> row-mdd… 01000096000          <span style="text-decoration: underline;">1</span>720 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> row-epn… 01000306500          <span style="text-decoration: underline;">2</span>424 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> row-b7y… 01000005500          <span style="text-decoration: underline;">1</span>584 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> row-5zx… 01000013200          <span style="text-decoration: underline;">1</span>520 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> row-knr… 01000014500          <span style="text-decoration: underline;">1</span>450 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> row-vpp… 01000045500          <span style="text-decoration: underline;">1</span>290 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> row-8j8… 01000064000          <span style="text-decoration: underline;">1</span>820 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> row-mst… 01000067500          <span style="text-decoration: underline;">1</span>916 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> row-wq5… 01000067900          <span style="text-decoration: underline;">1</span>892 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> row-hfi… 01000092200          <span style="text-decoration: underline;">1</span>700 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> row-9rr… 01000096000          <span style="text-decoration: underline;">1</span>720 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> row-e9m… 01000306500          <span style="text-decoration: underline;">2</span>424 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 66 more variables: street_name &lt;chr&gt;, street_type &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   full_address &lt;chr&gt;, neighbourhood_area &lt;chr&gt;, market_region &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   total_living_area &lt;int&gt;, building_type &lt;chr&gt;, basement &lt;chr&gt;,</span></span></span>
@@ -373,7 +372,7 @@ OData syntax:</p>
 </h3>
 <p>Combine conditions with <code>&amp;</code> (AND) and <code>|</code>
 (OR):</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  filter <span class="op">=</span> <span class="va">total_assessed_value</span> <span class="op">&gt;</span> <span class="fl">1000000</span> <span class="op">&amp;</span> <span class="va">building_type</span> <span class="op">==</span> <span class="st">"TWO STOREY"</span>,</span>
 <span>  top    <span class="op">=</span> <span class="fl">10</span></span>
@@ -381,16 +380,16 @@ OData syntax:</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 72</span></span></span>
 <span><span class="co">#&gt;    `__id`   roll_number street_number unit_number street_suffix street_direction</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> row-xxt… 01000005500          <span style="text-decoration: underline;">1</span>584 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> row-pq8… 01000013200          <span style="text-decoration: underline;">1</span>520 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> row-pbe… 01000014500          <span style="text-decoration: underline;">1</span>450 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> row-xmc… 01000064000          <span style="text-decoration: underline;">1</span>820 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> row-55u… 01000560000          <span style="text-decoration: underline;">3</span>179 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> row-mqy… 01000615000             3 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> row-3w2… 01000615400            17 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> row-k94… 01000615800            31 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> row-ttt… 01000617400            36 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> row-97f… 01000718800           400 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> row-b7y… 01000005500          <span style="text-decoration: underline;">1</span>584 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> row-5zx… 01000013200          <span style="text-decoration: underline;">1</span>520 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> row-knr… 01000014500          <span style="text-decoration: underline;">1</span>450 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> row-8j8… 01000064000          <span style="text-decoration: underline;">1</span>820 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> row-md5… 01000560000          <span style="text-decoration: underline;">3</span>179 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> row-x5m… 01000615000             3 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> row-hrh… 01000615400            17 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> row-2x2… 01000615800            31 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> row-h9d… 01000617400            36 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> row-fbt… 01000718800           400 <span style="color: #BB0000;">NA</span>          <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>              </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 66 more variables: street_name &lt;chr&gt;, street_type &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   full_address &lt;chr&gt;, neighbourhood_area &lt;chr&gt;, market_region &lt;chr&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   total_living_area &lt;int&gt;, building_type &lt;chr&gt;, basement &lt;chr&gt;,</span></span></span>
@@ -404,7 +403,7 @@ OData syntax:</p>
 </h3>
 <p>Use <code>select</code> to return only the columns you need — reduces
 transfer size significantly on wide datasets:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  select <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"roll_number"</span>, <span class="st">"full_address"</span>, <span class="st">"total_assessed_value"</span>,</span>
 <span>             <span class="st">"building_type"</span>, <span class="st">"year_built"</span><span class="op">)</span>,</span>
@@ -428,7 +427,7 @@ transfer size significantly on wide datasets:</p>
 <h3 id="sorting-results">Sorting results<a class="anchor" aria-label="anchor" href="#sorting-results"></a>
 </h3>
 <p>Use <code>orderby</code> to sort ascending or descending:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  select  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"roll_number"</span>, <span class="st">"full_address"</span>, <span class="st">"total_assessed_value"</span><span class="op">)</span>,</span>
 <span>  orderby <span class="op">=</span> <span class="st">"total_assessed_value desc"</span>,</span>
@@ -451,7 +450,7 @@ transfer size significantly on wide datasets:</p>
 <div class="section level3">
 <h3 id="combining-filter-select-and-orderby">Combining filter, select, and orderby<a class="anchor" aria-label="anchor" href="#combining-filter-select-and-orderby"></a>
 </h3>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>,</span>
 <span>  filter  <span class="op">=</span> <span class="va">total_assessed_value</span> <span class="op">&gt;</span> <span class="fl">1000000</span> <span class="op">&amp;</span> <span class="va">year_built</span> <span class="op">&gt;</span> <span class="fl">2000</span>,</span>
 <span>  select  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"roll_number"</span>, <span class="st">"full_address"</span>, <span class="st">"total_assessed_value"</span>,</span>
@@ -478,7 +477,7 @@ transfer size significantly on wide datasets:</p>
 </h3>
 <p>Use <code>skip</code> and <code>top</code> together to retrieve a
 specific slice of rows:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># rows 1–5</span></span>
 <span><span class="va">page_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span>, top <span class="op">=</span> <span class="fl">5</span>, skip <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
@@ -490,7 +489,7 @@ specific slice of rows:</p>
 </h3>
 <p>Omit <code>top</code> to fetch every matching row across all
 pages:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># fetches all rows — may take several minutes for large datasets</span></span>
 <span><span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span><span class="st">"d4mq-wa44"</span><span class="op">)</span></span></code></pre></div>
 <hr>
@@ -506,7 +505,7 @@ use ISO 8601 format with milliseconds:
 <code>YYYY-MM-DDTHH:MM:SS.mmm</code>.</p>
 <p>Build cutoff strings with a small helper to avoid repeating the
 format:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># helper — format a Date as a Socrata floating timestamp string</span></span>
 <span><span class="va">ts</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">date</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">date</span>, <span class="st">"%Y-%m-%dT00:00:00.000"</span><span class="op">)</span></span></code></pre></div>
 <p>The examples below use the 311 Service Requests dataset
@@ -516,7 +515,7 @@ entire dataset.</p>
 <div class="section level3">
 <h3 id="records-closed-in-the-last-4-days">Records closed in the last 4 days<a class="anchor" aria-label="anchor" href="#records-closed-in-the-last-4-days"></a>
 </h3>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">filter_str</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"closed_date ge '"</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ts.html" class="external-link">ts</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">4</span><span class="op">)</span>, <span class="st">"'"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/peg_data.html">peg_data</a></span><span class="op">(</span></span>
@@ -530,23 +529,23 @@ entire dataset.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 10</span></span></span>
 <span><span class="co">#&gt;    case_id   channel_type subject reason type  open_date closed_date case_status</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 925ba982… Voice In     Servic… Publi… Pave… 2018-04-… 2026-03-06… Closed     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> d81f9c30… VOF          Servic… Publi… Graf… 2023-12-… 2026-03-06… Closed     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 5b52f3b4… VOF          Servic… Publi… Graf… 2023-12-… 2026-03-06… Closed     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 71c5dea2… VOF          Servic… Publi… Graf… 2023-12-… 2026-03-06… Closed     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> c48b7cd1… Dept Create… Servic… Publi… Graf… 2023-12-… 2026-03-06… Closed     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> b68d46fc… VOF          Servic… Publi… Graf… 2024-01-… 2026-03-06… Closed     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 9c5748e5… e-mail In    Servic… Publi… Graf… 2024-01-… 2026-03-06… Closed     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> b3e723ff… e-mail In    Servic… Publi… Graf… 2024-02-… 2026-03-06… Closed     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 15271674… e-mail In    Servic… Publi… Graf… 2024-03-… 2026-03-06… Closed     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> d19dadf0… VOF          Servic… Publi… Graf… 2024-03-… 2026-03-06… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 00e17bc8… Voice In     Servic… Water… Wate… 2014-09-… 2026-03-18… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0130e8c6… Voice In     Servic… City … Indi… 2018-11-… 2026-03-17… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 0145e387… Voice In     Servic… Water… Wate… 2014-06-… 2026-03-18… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 016c4370… Voice In     Servic… Water… Wate… 2014-02-… 2026-03-18… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 01d35870… Voice In     Servic… Water… Wate… 2014-09-… 2026-03-18… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 029fed7e… Voice In     Servic… City … Indi… 2019-03-… 2026-03-17… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 042218b5… Voice In     Servic… Water… Valv… 2014-03-… 2026-03-18… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 04d029f1… Voice In     Servic… Water… Valv… 2014-05-… 2026-03-18… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 05d0fc55… Voice In     Servic… Plann… City… 2015-10-… 2026-03-17… Closed     </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 05d0fc55… Self Service Servic… Plann… City… 2015-10-… 2026-03-17… Closed     </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: neighbourhood &lt;chr&gt;, ward &lt;chr&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="records-closed-within-a-specific-date-range">Records closed within a specific date range<a class="anchor" aria-label="anchor" href="#records-closed-within-a-specific-date-range"></a>
 </h3>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">filter_str</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
 <span>  <span class="st">"closed_date ge '"</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ts.html" class="external-link">ts</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2026-03-01"</span><span class="op">)</span><span class="op">)</span>, <span class="st">"'"</span>,</span>
 <span>  <span class="st">" and "</span>,</span>
@@ -577,7 +576,7 @@ entire dataset.</p>
 <div class="section level3">
 <h3 id="open-cases-from-the-last-7-days">Open cases from the last 7 days<a class="anchor" aria-label="anchor" href="#open-cases-from-the-last-7-days"></a>
 </h3>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">filter_str</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
 <span>  <span class="st">"open_date ge '"</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ts.html" class="external-link">ts</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">7</span><span class="op">)</span>, <span class="st">"'"</span>,</span>
 <span>  <span class="st">" and "</span>,</span>
@@ -594,22 +593,22 @@ entire dataset.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 7</span></span></span>
 <span><span class="co">#&gt;    case_id              subject reason open_date case_status neighbourhood ward </span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 651af1c08e9e943d4c6… Servic… Water… 2026-03-… Open        Garden City   Old …</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 0b8f964f48a39e42332… Servic… Water… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> ffa4c42ea341c4b0a82… Servic… Water… 2026-03-… Open        West Alexand… Poin…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> cdc7299136ca05917c7… Servic… Publi… 2026-03-… Open        Assiniboia D… Char…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 738c5f21c1420e128ee… Servic… Publi… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 16c8bd44b69b98665cc… Servic… Water… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 87d4bb9f18e575fc7a6… Servic… Water… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 71a97c142fecf839d6f… Servic… Publi… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> bb1a3cc58a09a7a1044… Servic… Publi… 2026-03-… Open        Wellington C… Rive…</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> fd3917710d58a0fe5e5… Servic… Publi… 2026-03-… Open        Weston        Poin…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 85737cf8aed019baf1b… Servic… Asses… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> a5f641c1fefc70ff811… Servic… Water… 2026-03-… Open        King Edward   St. …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 14413d52546953d2bf9… Servic… Water… 2026-03-… Open        Pulberry      St. …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> def3469b275f18e5096… Servic… Trans… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 959b3538554dd6e8524… Servic… Asses… 2026-03-… Open        River East    Nort…</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0d00b3abc5db0f1caea… Servic… Publi… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 0a8da3ffeea5d452f8a… Servic… Publi… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> ba23f5972a6c8736651… Servic… Water… 2026-03-… Open        <span style="color: #BB0000;">NA</span>            <span style="color: #BB0000;">NA</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 62a617b57be61a7df4f… Servic… Water… 2026-03-… Open        Holden        St. …</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 4e767e8dc87d00cb621… Servic… Water… 2026-03-… Open        Silver Heigh… St. …</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="cases-closed-yesterday-sorted-by-most-recently-closed">Cases closed yesterday, sorted by most recently closed<a class="anchor" aria-label="anchor" href="#cases-closed-yesterday-sorted-by-most-recently-closed"></a>
 </h3>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">filter_str</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span></span>
 <span>  <span class="st">"closed_date ge '"</span>, <span class="fu"><a href="https://rdrr.io/r/stats/ts.html" class="external-link">ts</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span>, <span class="st">"'"</span>,</span>
 <span>  <span class="st">" and "</span>,</span>
@@ -624,17 +623,16 @@ entire dataset.</p>
 <span>  orderby <span class="op">=</span> <span class="st">"closed_date desc"</span>,</span>
 <span>  top     <span class="op">=</span> <span class="fl">100L</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 8 × 6</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 7 × 6</span></span></span>
 <span><span class="co">#&gt;   case_id               channel_type subject open_date closed_date neighbourhood</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> e7aeea7ab60a8ea2a38d… Voice In     Servic… 2026-03-… 2026-03-09… Wildwood     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 3196e0629b27fd06c63a… Voice In     Inform… 2026-03-… 2026-03-09… <span style="color: #BB0000;">NA</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 9ceb51f74afd7cf65cf6… Voice In     Inform… 2026-03-… 2026-03-09… <span style="color: #BB0000;">NA</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> ec2beb625c867971ebad… Voice In     Inform… 2026-03-… 2026-03-09… <span style="color: #BB0000;">NA</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> d16150e9e7fc38d82621… e-mail In    Servic… 2026-03-… 2026-03-09… <span style="color: #BB0000;">NA</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> becae90412837deb7a7f… Voice In     Inform… 2026-03-… 2026-03-09… <span style="color: #BB0000;">NA</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> fa7630c2d7b2cb195025… Voice In     Inform… 2026-03-… 2026-03-09… <span style="color: #BB0000;">NA</span>           </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">8</span> 1dee42a9a3f437aba836… Voice In     Inform… 2026-03-… 2026-03-09… <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 5290205807c2d82aa351… Voice In     Servic… 2026-03-… 2026-03-19… Tyndall Park </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 86dac5efdb20f2cec795… VOF          Servic… 2026-03-… 2026-03-19… <span style="color: #BB0000;">NA</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> e904e530d8d53c6ad88b… Voice In     Inform… 2026-03-… 2026-03-19… <span style="color: #BB0000;">NA</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 3887658d92e0ebd73e6d… Voice In     Servic… 2026-03-… 2026-03-19… Munroe East  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 6ced2002c49a11832772… Voice In     Servic… 2026-03-… 2026-03-19… <span style="color: #BB0000;">NA</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 0be9a18a56d20852ff76… Voice In     Servic… 2026-03-… 2026-03-19… <span style="color: #BB0000;">NA</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">7</span> cdbcadd803817f39dbe0… Voice In     Inform… 2026-03-… 2026-03-19… <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
 <blockquote>
 <p><strong>Note:</strong> The <code>top</code> argument is included in
 all date filter examples to keep live API calls lightweight during
@@ -711,7 +709,7 @@ in the date filtering section above.</p>
 <h2 id="finding-dataset-ids">Finding dataset IDs<a class="anchor" aria-label="anchor" href="#finding-dataset-ids"></a>
 </h2>
 <p>The easiest way is to search directly in R:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/peg_catalogue.html">peg_catalogue</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"your search term"</span>, <span class="va">name</span>, ignore.case <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">name</span>, <span class="va">id</span>, <span class="va">category</span><span class="op">)</span></span></code></pre></div>

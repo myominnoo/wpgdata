@@ -41,9 +41,8 @@ library(dplyr)
 
 The typical `wpgdata` workflow follows four steps:
 
-```
-peg_catalogue()   →   peg_info()      →   peg_metadata()   →   peg_data()
-(find datasets)       (dataset info)      (column schema)      (fetch rows)
+```{r pipeline-chart, echo = FALSE, out.width = "100%"}
+knitr::include_graphics("README-pipeline.svg")
 ```
 
 | Function | Purpose |
